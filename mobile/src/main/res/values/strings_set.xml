@@ -13,8 +13,8 @@
     <string name="notification_space_health_paused_body">Android paused the work profile. Turn on the “Work apps” tile in quick settings; the space recovers by itself.</string>
     <string name="notification_space_health_bridge">Dual space connection is down</string>
     <string name="notification_space_health_bridge_body">The clone apps cannot be reached from the main space. Open PrismSpace → Settings to reconnect.</string>
-    <string name="lz_set_disable_apps_title">Disable space apps</string>
-    <string name="lz_set_disable_apps_summary">Choose which apps stay hidden and suspended inside the dual space</string>
+    <string name="lz_set_disable_apps_title">Space apps &amp; processes</string>
+    <string name="lz_set_disable_apps_summary">See what runs inside the space and control each app hide / suspend state</string>
     <string name="lz_set_suspend_title">Pause all clones</string>
     <string name="lz_set_suspend_summary">Clones cannot open while paused; apps and data are preserved</string>
     <string name="lz_set_suspend_state_frozen">All eligible clones are paused. Turn this off to resume them.</string>

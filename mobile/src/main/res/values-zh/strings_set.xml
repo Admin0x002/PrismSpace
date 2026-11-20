@@ -13,8 +13,8 @@
     <string name="notification_space_health_paused_body">Android 暂停了工作资料。请在通知栏快捷设置里打开「工作应用」，空间会自动恢复。</string>
     <string name="notification_space_health_bridge">双开空间连接已断开</string>
     <string name="notification_space_health_bridge_body">主空间无法访问分身应用。打开 PrismSpace → 设置重新连接。</string>
-    <string name="lz_set_disable_apps_title">禁用空间应用</string>
-    <string name="lz_set_disable_apps_summary">选择要在双开空间里隐藏并挂起的应用</string>
+    <string name="lz_set_disable_apps_title">空间应用与进程</string>
+    <string name="lz_set_disable_apps_summary">查看空间内运行的进程，并控制每个应用的隐藏 / 挂起</string>
     <string name="lz_set_suspend_title">暂停所有分身</string>
     <string name="lz_set_suspend_summary">分身将无法打开，应用和数据仍会保留</string>
     <string name="lz_set_suspend_state_frozen">所有分身均已暂停，关闭开关即可恢复。</string>
