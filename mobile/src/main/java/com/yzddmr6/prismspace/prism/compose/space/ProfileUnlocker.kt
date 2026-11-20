@@ -59,13 +59,17 @@ object ProfileUnlocker {
         ProfileUnlockOutcome.StillLocked
     }
 
-    /** @return whether a reboot was actually requested. The device reboots asynchronously. */
+    /** @return true only when the device is actually going down; false means the user must reboot. */
     suspend fun reboot(context: Context): Boolean = withContext(Dispatchers.IO) {
         val shell = resolvePrivilegedShell(context.applicationContext)
             ?: return@withContext false
         DiagnosticLog.i(TAG, "privileged reboot requested transport=${shell.name}")
         shell.run(rebootCommand())
-        true
+        // A working request tears this process down within a second or two. Surviving the wait
+        // means the shell lacked the REBOOT permission, so report a failure instead of a false "ok".
+        delay(REBOOT_VERIFY_MS)
+        DiagnosticLog.w(TAG, "reboot request did not take effect transport=${shell.name}")
+        false
     }
 
     private fun isUnlocked(context: Context, userId: Int): Boolean = runCatching {
@@ -73,6 +77,7 @@ object ProfileUnlocker {
     }.getOrDefault(false)
 
     private const val UNLOCK_TIMEOUT_MS = 4_000L
+    private const val REBOOT_VERIFY_MS = 6_000L
     private const val POLL_INTERVAL_MS = 200L
     private const val TAG = "Prism.Unlock"
 }
