@@ -51,6 +51,17 @@ jobs:
           printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/prism-release.jks"
           test -s "$RUNNER_TEMP/prism-release.jks"
 
+      # The fork carries 100+ unit tests that the old workflow never ran. Gate every build on
+      # them: a fork change that breaks a pure mapper or a policy rule must fail here, not on
+      # the tablet.
+      - name: Unit tests
+        env:
+          PRISM_RELEASE_KEYSTORE_PATH: ${{ runner.temp }}/prism-release.jks
+          PRISM_KEYSTORE_PASSWORD: ${{ secrets.PRISM_KEYSTORE_PASSWORD }}
+          PRISM_KEY_ALIAS: ${{ secrets.PRISM_KEY_ALIAS }}
+          PRISM_KEY_PASSWORD: ${{ secrets.PRISM_KEY_PASSWORD }}
+        run: ./gradlew --no-daemon --max-workers=2 :shared:testDebugUnitTest :mobile:testCompleteNormalDebugUnitTest
+
       - name: Build
         env:
           PRISM_RELEASE_KEYSTORE_PATH: ${{ runner.temp }}/prism-release.jks
