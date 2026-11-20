@@ -79,6 +79,7 @@ private val ISOLATION_SWITCHES = listOf(
 fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
     val vm: SettingsViewModel = viewModel()
     val uiState by vm.uiState.collectAsState()
+    val overview by vm.overview.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) { vm.refreshCapabilities() }
@@ -206,7 +207,7 @@ fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
                             onClick = onOpenSpaceTrim,
                         )
                     }
-                    state.overviewLine?.let {
+                    overview?.let {
                         StatusRow(
                             title = stringResource(R.string.lz_set_overview_title),
                             summary = it,

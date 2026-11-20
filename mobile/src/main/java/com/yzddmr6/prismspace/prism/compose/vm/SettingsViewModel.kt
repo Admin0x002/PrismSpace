@@ -103,8 +103,6 @@ data class SettingsUiModel(
     val spaceActionEnabled: Boolean = true,
     // Profiles with our package that are neither provisioned nor the primary (diagnostic row only).
     val surplusProfileIds: List<Int> = emptyList(),
-    /** 空间占用概览 one-liner (counts + storage + processes). */
-    val overviewLine: String? = null,
     /** 跨空间隔离策略: effective state per policy name, read from the profile. */
     val governance: Map<String, Boolean> = emptyMap(),
     val governanceRefused: List<String> = emptyList(),
@@ -225,6 +223,10 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     private val bridgeHealthRepo: BridgeHealthRepository by lazy { BridgeHealthRepository(getApplication()) }
     private val stateRepo: SpaceStateRepository by lazy { SpaceStateRepository(getApplication()) }
     private val capRepo: CapabilityRepository by lazy { CapabilityRepositoryProvider.get(getApplication()) }
+
+    private val _overview = MutableStateFlow<String?>(null)
+    /** 空间占用概览 one-liner; separate from [uiState] so it cannot be lost to a render race. */
+    val overview: StateFlow<String?> = _overview
 
     private val _uiState = MutableStateFlow<SettingsUiModel?>(null)
     val uiState: StateFlow<SettingsUiModel?> = _uiState
@@ -705,11 +707,9 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
             val size = SpaceOverview.formatBytes(snapshot.dataBytes)
             val processes = snapshot.processCount?.toString()
                 ?: str(R.string.lz_set_overview_no_privilege)
-            _uiState.value = _uiState.value?.copy(
-                overviewLine = str(
-                    R.string.lz_set_overview_line,
-                    processes, size ?: str(R.string.lz_set_overview_unknown),
-                ),
+            _overview.value = str(
+                R.string.lz_set_overview_line,
+                processes, size ?: str(R.string.lz_set_overview_unknown),
             )
         }
     }
