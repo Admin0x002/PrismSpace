@@ -1,6 +1,6 @@
 package com.yzddmr6.prismspace.provisioning
 
-import android.app.admin.DevicePolicyManager
+import android.os.UserManager
 import android.content.Context
 import com.yzddmr6.prismspace.analytics.DiagnosticLog
 import com.yzddmr6.prismspace.bridge.SpaceGovernanceReport
@@ -15,21 +15,21 @@ import com.yzddmr6.prismspace.util.DevicePolicies
  */
 object CrossSpaceGovernance {
 
-    /** One reviewable knob, matching one [DevicePolicyManager] restriction. */
+    /** One reviewable knob, matching one [UserManager] restriction. */
     enum class Policy(val restriction: String, val defaultOn: Boolean) {
         /**
          * Clipboard is shared between spaces by default on many OEM builds. Off means a copied
          * password stays where it was copied.
          */
-        BlockClipboard(DevicePolicyManager.DISALLOW_CROSS_PROFILE_COPY_PASTE, defaultOn = true),
+        BlockClipboard(UserManager.DISALLOW_CROSS_PROFILE_COPY_PASTE, defaultOn = true),
         /** Only PrismSpace and the system installer may bring APKs into the space. */
-        BlockUnknownInstall(DevicePolicyManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, defaultOn = true),
+        BlockUnknownInstall(UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES, defaultOn = true),
         /** No USB file transfer or debugging of the space's data. */
-        BlockUsbTransfer(DevicePolicyManager.DISALLOW_USB_FILE_TRANSFER, defaultOn = true),
+        BlockUsbTransfer(UserManager.DISALLOW_USB_FILE_TRANSFER, defaultOn = true),
         /** No debugging features inside the space (also blocks adb shell into the profile). */
-        BlockDebugging(DevicePolicyManager.DISALLOW_DEBUGGING_FEATURES, defaultOn = true),
+        BlockDebugging(UserManager.DISALLOW_DEBUGGING_FEATURES, defaultOn = true),
         /** No adding accounts inside the space (a work account belongs to the parent). */
-        BlockAccountAdd(DevicePolicyManager.DISALLOW_MODIFY_ACCOUNTS, defaultOn = false),
+        BlockAccountAdd(UserManager.DISALLOW_MODIFY_ACCOUNTS, defaultOn = false),
     }
 
     /** Bridge entry: policies keyed by [Policy.name]; unknown names are ignored. */
