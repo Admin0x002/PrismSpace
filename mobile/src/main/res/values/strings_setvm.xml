@@ -40,6 +40,7 @@
     <string name="lz_setvm_space_already_ready">Dual space is already ready</string>
     <string name="lz_setvm_bridge_repairing">Reconnecting dual space…</string>
     <string name="lz_setvm_bridge_repair_opened_profile">Opened the dual space. Return to PrismSpace and retry after it reconnects.</string>
+    <string name="lz_setvm_space_paused_system_toggle">Android paused the dual space (quiet mode), and a normal app cannot lift that. Turn on the “Work apps” tile in quick settings — or un-pause the work profile in system settings — and the space recovers by itself.</string>
     <string name="lz_setvm_unlocking_space">Asking Android to unlock the dual space…</string>
     <string name="lz_setvm_space_unlocked">Dual space unlocked.</string>
     <string name="lz_setvm_unlock_needs_reboot">Android keeps the dual space’s encrypted storage locked and PrismSpace cannot unlock it on its own. Reboot the device — the space unlocks automatically on boot.</string>

@@ -284,9 +284,10 @@ class Users : PseudoContentProvider() {
 				}
 		}
 
-		// Profile activation on slow ROMs needs well over the old 15 s: a 19 s resume was observed
-		// here, and the timeout must outlast the CE unlock that follows the start.
-		private const val ACTIVATION_TIMEOUT: Long = 45_000
+		// Activation may land well after the old 15 s (a 19 s resume was observed here). Keep the
+		// wait short enough to stay a useful spinner: when Android's "工作应用" switch is what is
+		// holding the profile, no amount of waiting helps and the UI points at that switch instead.
+		private const val ACTIVATION_TIMEOUT: Long = 20_000
 		private const val ACTIVATION_POLL_MS: Long = 500
 
 		private var mDebugBuild = false

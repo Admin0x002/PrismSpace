@@ -486,6 +486,10 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 					}
                     if (ok) {
                         setFeedback(str(R.string.lz_setvm_space_resumed), isError = false)
+                    } else if (Users.isProfileQuietModeEnabled(context, profile)) {
+                        // Quiet mode is a system switch ("工作应用"): a normal app cannot lift it, so
+                        // point at the switch that can instead of reporting a bare failure.
+                        setFeedback(str(R.string.lz_setvm_space_paused_system_toggle), isError = true)
                     } else if (Users.isProfileAvailable(context, profile) && !Users.isProfileUnlocked(context, profile)) {
                         // Started but CE-locked: this ROM cannot clear it without a reboot, so say so
                         // instead of blaming the activation request.
