@@ -41,9 +41,9 @@ class SystemAppPolicyTest {
                 facts = listOf(fact("vendor.qti.data.txpwradmin", launcher = false)),
             ))["vendor.qti.data.txpwradmin"],
         )
-        // An explicit Enable cannot resurrect a blocked package...
+        // ...but an explicit Enable is the user unchecking it on the disable screen, so it wins.
         assertEquals(
-            UNAVAILABLE,
+            AVAILABLE,
             SystemAppPolicy.evaluate(inputs(
                 blocked = setOf("vendor.qti.data.txpwradmin"),
                 overrides = mapOf("vendor.qti.data.txpwradmin" to Enabled),

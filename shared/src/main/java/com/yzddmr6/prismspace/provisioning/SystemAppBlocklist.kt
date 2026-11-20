@@ -31,5 +31,18 @@ object SystemAppBlocklist {
         "com.coloros.sceneservice",     // ColorOS scene service
         "com.heytap.mcs",               // OPPO push channel
         "com.coloros.assistantscreen",  // assistant screen (负一屏)
+        // Background-only packages: no UI the space needs, but they keep a process (or a
+        // scheduler) alive for services nobody asked for in a dual space.
+        "android.ext.services",                             // shared system helper services
+        "com.android.adservices.api",                       // ad services (".adservices" process)
+        "com.coloros.securepay",                            // secure payment service
+        "com.heytap.openid",                                // OPPO open-id service
+        "com.google.android.configupdater",                 // config updater
+        "com.oplus.framework.network.drs",                  // network diagnostics/data service
+        "com.oplus.powermonitor",                           // power monitor
+        "com.oplus.thirdkit",                               // OPPO third-party kit
+        "com.oppo.ctautoregist",                            // CT auto registration
+        "com.qualcomm.qti.qms.service.connectionsecurity",  // Qualcomm QMS connection security
+        "com.qualcomm.qti.workloadclassifier",              // Qualcomm workload classifier
     )
 }

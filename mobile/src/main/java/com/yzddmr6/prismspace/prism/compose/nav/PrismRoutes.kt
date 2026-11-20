@@ -7,6 +7,8 @@ object PrismRoutes {
     const val SETTINGS = "settings"
     /** Not a top-level tab, so the bottom bar hides while it is shown. */
     const val SYSTEM_APP_PICKER = "system_app_picker/{userId}?origin={origin}"
+    /** 空间精简: choose which system packages stay disabled inside the space. */
+    const val SPACE_TRIM = "space_trim"
 
     fun systemAppPicker(userId: Int, origin: String) = "system_app_picker/$userId?origin=$origin"
 

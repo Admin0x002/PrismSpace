@@ -31,6 +31,7 @@ import com.yzddmr6.prismspace.prism.compose.screen.FilesScreen
 import com.yzddmr6.prismspace.prism.compose.screen.HomeScreen
 import com.yzddmr6.prismspace.prism.compose.screen.SettingsScreen
 import com.yzddmr6.prismspace.prism.compose.screen.SpaceScreen
+import com.yzddmr6.prismspace.prism.compose.screen.SpaceTrimScreen
 import com.yzddmr6.prismspace.prism.compose.screen.SystemAppPickerScreen
 import com.yzddmr6.prismspace.prism.compose.space.SpaceStateRepository
 import com.yzddmr6.prismspace.prism.compose.space.SpaceUsability
@@ -194,7 +195,12 @@ fun PrismNavHost(navController: NavHostController) {
                 composable(PrismRoutes.HOME)     { HomeScreen(navController) }
                 composable(PrismRoutes.SPACE)    { SpaceScreen() }
                 composable(PrismRoutes.FILES)    { FilesScreen() }
-                composable(PrismRoutes.SETTINGS) { SettingsScreen() }
+                composable(PrismRoutes.SETTINGS) {
+                    SettingsScreen(onOpenSpaceTrim = { navController.navigate(PrismRoutes.SPACE_TRIM) })
+                }
+                composable(PrismRoutes.SPACE_TRIM) {
+                    SpaceTrimScreen(onBack = { navController.popBackStack() })
+                }
                 composable(
                     PrismRoutes.SYSTEM_APP_PICKER,
                     arguments = listOf(

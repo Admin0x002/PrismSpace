@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.SystemClock
 import android.preference.PreferenceManager
 import com.yzddmr6.prismspace.analytics.DiagnosticLog
+import com.yzddmr6.prismspace.bridge.BlockableAppEntry
+import com.yzddmr6.prismspace.bridge.BlockableAppsPage
 import com.yzddmr6.prismspace.bridge.SelectionFinish
 import com.yzddmr6.prismspace.bridge.SystemAppApplyReportDto
 import com.yzddmr6.prismspace.bridge.SystemAppChoice
@@ -25,6 +27,10 @@ enum class ConvergeReason { Provision, Repair, Incremental, Selection }
 enum class PackageOutcome { Ok, Unchanged, Absent, Failed, HiddenOnly }
 
 data class PackageResult(val target: SystemAppTarget, val outcome: PackageOutcome)
+
+internal data class BlockableAppFact(val pkg: String, val checked: Boolean, val inBlocklist: Boolean)
+
+internal data class BlockableAppPage(val entries: List<BlockableAppFact>, val hasMore: Boolean)
 
 data class ApplyReport(
     val results: Map<String, PackageResult>,
@@ -116,6 +122,35 @@ internal class SystemAppPolicyEngine(
             }
         }
         return SystemAppApplyReportDto(available, unavailable, absent, failed, ignoredCritical)
+    }
+
+    /**
+     * Rows of the "disable in the space" screen: every installed, non-critical system package with
+     * its current policy target. Critical packages never show up — suspending them would break the
+     * space itself, not save resources.
+     */
+    fun blockablePage(provisionState: Int, pageIndex: Int, pageSize: Int): BlockableAppPage {
+        val stored = persistence.read()
+        val collected = facts(stored.overrides.keys + SystemAppDefaults.packages + SystemAppBlocklist.packages)
+        val state = ensureInitialized(stored, collected, provisionState)
+        val targets = evaluate(state, collected)
+        val blockable = collected.facts.asSequence()
+            .filter { it.isSystem && it.installed && it.pkg !in collected.critical }
+            .map { it.pkg }
+            .sorted()
+            .toList()
+        val size = clampProfileAppPageSize(pageSize)
+        val start = pageIndex.coerceAtLeast(0).toLong() * size
+        if (start >= blockable.size) return BlockableAppPage(emptyList(), false)
+        val end = minOf(start.toInt() + size, blockable.size)
+        val entries = blockable.subList(start.toInt(), end).map { pkg ->
+            BlockableAppFact(
+                pkg = pkg,
+                checked = targets[pkg]?.kind() == SystemAppTarget.Unavailable,
+                inBlocklist = pkg in SystemAppBlocklist.packages,
+            )
+        }
+        return BlockableAppPage(entries, hasMore = end < blockable.size)
     }
 
     fun selectionPage(provisionState: Int, pageIndex: Int, pageSize: Int): SystemAppSelectionPage {
@@ -329,6 +364,24 @@ internal class SystemAppPolicyEngine(
         val policies = DevicePolicies(context)
         check(insideOwnedProfile(policies)) { "System app selection only applies inside a dual space" }
         return engine(context, policies).selectionPage(provisionState(context), pageIndex, pageSize)
+    }
+
+    @JvmStatic @Synchronized
+    fun queryBlockableAppsPage(context: Context, pageIndex: Int, pageSize: Int): BlockableAppsPage {
+        val policies = DevicePolicies(context)
+        check(insideOwnedProfile(policies)) { "The disable screen only works inside a dual space" }
+        val page = engine(context, policies).blockablePage(provisionState(context), pageIndex, pageSize)
+        val pm = context.packageManager
+        val entries = page.entries.map { fact ->
+            BlockableAppEntry(
+                pkg = fact.pkg,
+                label = runCatching { pm.getApplicationLabel(pm.getApplicationInfo(fact.pkg, 0)).toString() }
+                    .getOrDefault(fact.pkg),
+                checked = fact.checked,
+                inBlocklist = fact.inBlocklist,
+            )
+        }
+        return BlockableAppsPage(entries, hasMore = page.hasMore)
     }
 
     @JvmStatic @Synchronized

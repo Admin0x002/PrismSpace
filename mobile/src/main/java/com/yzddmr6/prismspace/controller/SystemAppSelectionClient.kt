@@ -3,8 +3,11 @@ package com.yzddmr6.prismspace.controller
 import android.content.Context
 import androidx.annotation.WorkerThread
 import com.yzddmr6.prismspace.bridge.ApplySystemAppSelection
+import com.yzddmr6.prismspace.bridge.BlockableAppEntry
+import com.yzddmr6.prismspace.bridge.BlockableAppsPage
 import com.yzddmr6.prismspace.bridge.BridgeTargets
 import com.yzddmr6.prismspace.bridge.MAX_SYSTEM_APP_SELECTION_CHANGES
+import com.yzddmr6.prismspace.bridge.QueryBlockableAppsPage
 import com.yzddmr6.prismspace.bridge.QuerySystemAppSelectionPage
 import com.yzddmr6.prismspace.bridge.SelectionFinish
 import com.yzddmr6.prismspace.bridge.SystemAppApplyReportDto
@@ -46,6 +49,33 @@ internal object SystemAppSelectionClient {
             page++
         }
         return ProfileBridgeResult.Failed(IllegalStateException("System app selection exceeded $pageLimit pages"))
+    }
+
+    /**
+     * Every installed, non-critical system package of the space, with labels resolved in the
+     * profile. Used by the "disable in the space" screen; the same [apply] call applies choices.
+     */
+    @WorkerThread
+    fun readBlockableApps(
+        context: Context,
+        userId: Int,
+        pageLimit: Int = MAX_PAGES,
+    ): ProfileBridgeResult<List<BlockableAppEntry>> {
+        val entries = ArrayList<BlockableAppEntry>()
+        var page = 0
+        while (page < pageLimit) {
+            val result = runProfileBridgeOperation(
+                context, TAG, "query blockable apps page=$page",
+                target = BridgeTargets.profile(userId),
+                command = QueryBlockableAppsPage(page),
+            )
+            val value = (result as? ProfileBridgeResult.Value<BlockableAppsPage>)?.value
+                ?: return result.failure()
+            entries += value.entries
+            if (!value.hasMore) return ProfileBridgeResult.Value(entries)
+            page++
+        }
+        return ProfileBridgeResult.Failed(IllegalStateException("Blockable apps exceeded $pageLimit pages"))
     }
 
     @WorkerThread

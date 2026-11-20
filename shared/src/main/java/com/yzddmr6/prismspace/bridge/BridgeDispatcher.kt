@@ -85,6 +85,10 @@ internal object BridgeDispatcher {
                 command,
                 SystemAppPolicyRuntime.querySelectionPage(context, command.pageIndex, command.pageSize),
             )
+            is QueryBlockableAppsPage -> success(
+                command,
+                SystemAppPolicyRuntime.queryBlockableAppsPage(context, command.pageIndex, command.pageSize),
+            )
             is ApplySystemAppSelection -> success(
                 command,
                 SystemAppPolicyRuntime.applySelection(context, command.changes, command.finish),

@@ -49,6 +49,31 @@ data class SystemAppApplyReportDto(
     val ignoredCritical: List<String>,
 ) : Parcelable
 
+/** One row of the "disable in the space" screen; labels are resolved in the profile. */
+@Parcelize
+data class BlockableAppEntry(
+    val pkg: String,
+    val label: String,
+    /** The policy hides + suspends it inside the space right now. */
+    val checked: Boolean,
+    /** Member of the fork's default blocklist. */
+    val inBlocklist: Boolean,
+) : Parcelable
+
+@Parcelize
+data class BlockableAppsPage(val entries: List<BlockableAppEntry>, val hasMore: Boolean) : Parcelable
+
+/** Lists every installed, non-critical system package of the space, ordered by package name. */
+@Parcelize
+data class QueryBlockableAppsPage(
+    val pageIndex: Int,
+    val pageSize: Int = DEFAULT_PROFILE_APP_PAGE_SIZE,
+) : ProfileCommand<BlockableAppsPage> {
+    override val id get() = "sysapps.query_blockable_page"
+    override fun encodeResult(result: BlockableAppsPage, out: Bundle) = out.putParcelable(RESULT, result)
+    override fun decodeResult(src: Bundle): BlockableAppsPage = src.requireSystemAppResult()
+}
+
 /** Reads the profile-side selection state; the page size is clamped by the handler. */
 @Parcelize
 data class QuerySystemAppSelectionPage(
@@ -79,6 +104,7 @@ data class ApplySystemAppSelection(
 
 internal val SYSTEM_APP_COMMAND_SAMPLES: List<BridgeCommand<*>> = listOf(
     QuerySystemAppSelectionPage(0),
+    QueryBlockableAppsPage(0),
     ApplySystemAppSelection(listOf(SystemAppOverrideChange("pkg", SystemAppChoice.Enabled)), SelectionFinish.Confirm),
 )
 

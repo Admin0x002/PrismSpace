@@ -67,7 +67,7 @@ import com.yzddmr6.prismspace.util.PrismLocale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
     val vm: SettingsViewModel = viewModel()
     val uiState by vm.uiState.collectAsState()
     val context = LocalContext.current
@@ -187,6 +187,12 @@ fun SettingsScreen() {
                             summary = stringResource(R.string.lz_set_system_apps_summary),
                             leadingIcon = PrismIcons.Droid,
                             onClick = { AppLaunchSignals.signalOpenSpaceSystemApps() },
+                        )
+                        NavRow(
+                            title = stringResource(R.string.lz_set_disable_apps_title),
+                            summary = stringResource(R.string.lz_set_disable_apps_summary),
+                            leadingIcon = PrismIcons.Alert,
+                            onClick = onOpenSpaceTrim,
                         )
                     }
                     // Diagnostic only: surplus profiles are never targets and never removed in-app.

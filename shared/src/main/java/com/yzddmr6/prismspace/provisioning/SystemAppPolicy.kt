@@ -67,7 +67,10 @@ object SystemAppPolicy {
                 pkg in inputs.criticalSet -> TargetState.AVAILABLE                                      // R1
                 // Blocked vendor services: kept out of every space, installed here or not. A hidden +
                 // suspended package cannot start its components, so its crash loop ends with it.
-                pkg in inputs.blockedSet -> if (fact?.installed == true) TargetState.UNAVAILABLE else null // R1b
+                // An explicit enable is the user unchecking the package on the disable screen, so it
+                // must win here — otherwise that screen could not undo a default.
+                pkg in inputs.blockedSet && inputs.overrides[pkg] != SystemAppOverride.Enabled ->
+                    if (fact?.installed == true) TargetState.UNAVAILABLE else null                            // R1b
                 fact != null && !fact.isSystem -> null                                                  // R2
                 pkg in inputs.exemptSet -> null                                                         // R3
                 inputs.overrides[pkg] == SystemAppOverride.Disabled ->                                  // R4

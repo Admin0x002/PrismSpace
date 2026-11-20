@@ -7,6 +7,8 @@
     <string name="lz_set_update_title">New version %1$s available</string>
     <string name="lz_set_update_download">Download</string>
     <string name="lz_set_update_later">Later</string>
+    <string name="lz_set_disable_apps_title">Disable space apps</string>
+    <string name="lz_set_disable_apps_summary">Choose which apps stay hidden and suspended inside the dual space</string>
     <string name="lz_set_suspend_title">Pause all clones</string>
     <string name="lz_set_suspend_summary">Clones cannot open while paused; apps and data are preserved</string>
     <string name="lz_set_suspend_state_frozen">All eligible clones are paused. Turn this off to resume them.</string>
@@ -40,6 +42,18 @@
     <string name="lz_set_delete_space_summary">Permanently removes the dual space and all clone data inside it</string>
     <string name="lz_set_export_logs_title">Export diagnostics</string>
     <string name="lz_set_export_logs_summary">Includes logs and device status, without file contents</string>
+    <string name="lz_trim_title">Space trim</string>
+    <string name="lz_trim_intro">Checked apps are hidden and suspended inside the dual space: data stays, nothing runs in the background, and unchecking restores them. Critical system packages are not listed.</string>
+    <string name="lz_trim_search">Search app or package</string>
+    <string name="lz_trim_save">Apply changes</string>
+    <string name="lz_trim_close">Back</string>
+    <string name="lz_trim_loading">Reading space apps…</string>
+    <string name="lz_trim_default_tag">Default</string>
+    <string name="lz_trim_saved">Applied: %1$d disabled, %2$d restored (%3$d failed)</string>
+    <string name="lz_trim_no_changes">No changes</string>
+    <string name="lz_trim_apply_failed">Apply failed. Check that the dual space is running and retry.</string>
+    <string name="lz_trim_error_no_space">No dual space found</string>
+    <string name="lz_trim_error_bridge">Cannot reach the dual space. Check that it is running.</string>
     <string name="lz_set_about_title">About PrismSpace</string>
     <string name="lz_set_about_summary">Project, version and open-source information</string>
     <string name="lz_set_cancel">Cancel</string>
