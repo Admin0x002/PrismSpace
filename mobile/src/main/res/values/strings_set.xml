@@ -26,7 +26,7 @@
     <string name="lz_set_resume_title">Resume dual space</string>
     <string name="lz_set_resume_summary">Ask Android to turn off quiet mode for this work profile.</string>
     <string name="lz_set_unlock_title">Unlock dual space</string>
-    <string name="lz_set_unlock_summary">Open the dual-space entry so Android can show the work-profile credential challenge.</string>
+    <string name="lz_set_unlock_summary">Locked by Android’s storage encryption, not by a PrismSpace password. With root or Shizuku PrismSpace asks Android to unlock it; otherwise reboot the device — the space unlocks automatically on boot.</string>
     <string name="lz_set_reconnect_title">Reconnect dual space</string>
     <string name="lz_set_reconnect_permission_denied">The cross-profile permission was denied. Open the dual-space entry to restore the connection.</string>
     <string name="lz_set_reconnect_profile_unavailable">The profile is not currently reachable. Resume or unlock it, then reconnect.</string>
@@ -41,11 +41,6 @@
     <string name="lz_set_delete_space_summary">Permanently removes the dual space and all clone data inside it</string>
     <string name="lz_set_export_logs_title">Export diagnostics</string>
     <string name="lz_set_export_logs_summary">Includes logs and device status, without file contents</string>
-    <string name="lz_set_feedback_title">Feedback and discussion</string>
-    <string name="lz_set_feedback_summary">For feedback and discussion, search WeChat for “%1$s”.</string>
-    <string name="lz_set_feedback_account">熵减矩阵</string>
-    <string name="lz_set_feedback_copy">Copy</string>
-    <string name="lz_set_feedback_copied">WeChat account name copied</string>
     <string name="lz_set_about_title">About PrismSpace</string>
     <string name="lz_set_about_summary">Project, version and open-source information</string>
     <string name="lz_set_cancel">Cancel</string>
@@ -73,8 +68,13 @@
     <string name="lz_set_system_apps_summary">View or add system apps in the dual space</string>
     <string name="lz_set_multi_space_title">Multiple dual spaces</string>
     <string name="lz_set_multi_space_summary">Experimental · depends on the system. If the device already has another dual space, PrismSpace recognizes it automatically.</string>
-    <string name="lz_set_suspend_disabled_locked">Unlock the dual space before changing this</string>
+    <string name="lz_set_suspend_disabled_locked">Locked by the system</string>
     <string name="lz_set_suspend_disabled_bridge">Reconnect the dual space before changing this</string>
+    <string name="lz_set_reboot_for_unlock_title">Reboot to unlock the dual space</string>
+    <string name="lz_set_reboot_for_unlock_summary">This device cannot unlock the work profile after boot; a reboot restores it automatically.</string>
+    <string name="lz_set_reboot_confirm_title">Reboot now?</string>
+    <string name="lz_set_reboot_confirm_body">Apps inside the dual space close first. The dual space unlocks automatically after boot.</string>
+    <string name="lz_set_reboot_confirm_action">Reboot</string>
     <string name="lz_set_surplus_profiles_title">Incomplete space detected</string>
     <string name="lz_set_surplus_profiles_summary">User %1$s has PrismSpace installed but was never fully set up. It takes up a system work profile slot and may have been created by an external tool. PrismSpace will not delete it automatically; you can remove it in system Settings.</string>
     <string name="lz_set_surplus_profiles_removal_message">Open system \"Settings - Accounts\", find the work profile that was not fully set up and select \"Remove work profile\". Settings may list several work profiles: do not remove the dual space you are using, or its clones and data will be deleted with it.</string>

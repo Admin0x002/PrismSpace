@@ -162,6 +162,16 @@ class Users : PseudoContentProvider() {
 			fun isProfileAvailable(context: Context, user: UserHandle): Boolean =
 				isProfileRunning(context, user) && ! isProfileQuietModeEnabled(context, user)
 
+			/** CE-unlock state of [user]; true for the current user and on unreadable runtime facts. */
+			fun isProfileUnlocked(context: Context, user: UserHandle): Boolean {
+				if (CURRENT == user) return true
+				return try { context.getSystemService<UserManager>()!!.isUserUnlocked(user) }
+				catch (e: RuntimeException) {
+					Log.w(TAG, "Error checking unlock state for user ${user.toId()}", e)
+					true
+				}
+			}
+
 		/**
 		 * Read-only: is there a vendor CLONE profile (e.g. XSpace) in this profile group? Callable from
 		 * both spaces; blocking binder calls, so call off the main thread. Kept out of [refreshUsers] and
@@ -254,7 +264,15 @@ class Users : PseudoContentProvider() {
 						if (! activating) it.resume(null)
 						Log.i(TAG, "Waiting for PrismSpace ${profile.toId()} to be ready...") }}
 			val user = intent?.getParcelableExtra<UserHandle>(Intent.EXTRA_USER)
-				val ready = user == profile && isProfileAvailable(context, profile)
+				val available = user == profile && isProfileAvailable(context, profile)
+				// "Available" (started, not quiet) arrives before CE unlock and can arrive without it:
+				// several ROMs start a profile after boot but never clear its credential-encrypted
+				// storage. Reporting that as success made the UI claim the space was resumed while
+				// nothing inside it could run.
+				val unlocked = available && isProfileUnlocked(context, profile)
+				if (available && !unlocked)
+					Log.w(TAG, "PrismSpace ${profile.toId()} is available but CE-locked")
+				val ready = unlocked
 				Log.i(TAG, "PrismSpace ${profile.toId()} activation confirmed=$ready")
 				return@coroutineScope ready
 		}

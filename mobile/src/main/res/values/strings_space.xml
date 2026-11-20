@@ -57,7 +57,7 @@
     <string name="lz_space_empty_dual_none">No cloned apps yet</string>
     <string name="lz_space_empty_none">No apps to display</string>
     <string name="lz_space_empty_no_match_hint">Try a different search term</string>
-    <string name="lz_space_empty_dual_locked_hint">Unlock the dual space (lock-screen password) first, then view the clones</string>
+    <string name="lz_space_empty_dual_locked_hint">The dual space is locked by the system. Unlock the device or reboot, then view the clones.</string>
     <string name="lz_space_empty_dual_suspended_hint">Resume the dual space in Settings</string>
     <string name="lz_space_empty_dual_bridge_hint">Open Settings and repair the dual-space connection</string>
     <string name="lz_space_empty_dual_unknown_hint">Open Settings and repair the dual space</string>
@@ -77,14 +77,14 @@
 
     <!-- Clone uninstall gate: guidance shown when the dual space cannot present the uninstaller. -->
     <string name="lz_uninstall_gate_suspended">Resume the dual space in Settings before uninstalling clones</string>
-    <string name="lz_uninstall_gate_locked">Unlock the dual space (lock-screen password) before uninstalling clones</string>
+    <string name="lz_uninstall_gate_locked">The dual space is locked by the system. Unlock the device or reboot, then uninstall the clone.</string>
     <string name="lz_uninstall_gate_bridge">Repair the dual-space connection in Settings before uninstalling clones</string>
     <string name="lz_uninstall_gate_missing">Set up the dual space before uninstalling clones</string>
     <string name="lz_uninstall_gate_unknown">Repair the dual space in Settings before uninstalling clones</string>
 
     <!-- Pending-install continue gate: guidance shown when the dual space cannot present the installer. -->
     <string name="lz_install_gate_suspended">Resume the dual space in Settings before continuing installation</string>
-    <string name="lz_install_gate_locked">Unlock the dual space (lock-screen password) before continuing installation</string>
+    <string name="lz_install_gate_locked">The dual space is locked by the system. Unlock the device or reboot, then continue the install.</string>
     <string name="lz_install_gate_bridge">Repair the dual-space connection in Settings before continuing installation</string>
     <string name="lz_install_gate_missing">Set up the dual space before continuing installation</string>
     <string name="lz_install_gate_unknown">Repair the dual space in Settings before continuing installation</string>

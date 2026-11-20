@@ -40,7 +40,12 @@
     <string name="lz_setvm_space_already_ready">双开空间已正常，无需修复</string>
     <string name="lz_setvm_bridge_repairing">正在重新连接双开空间…</string>
     <string name="lz_setvm_bridge_repair_opened_profile">已打开双开空间，请在完成重连后返回 PrismSpace 重试。</string>
-    <string name="lz_setvm_unlock_opened_profile">已打开双开空间入口；请完成 Android 工作资料解锁后返回 PrismSpace。</string>
+    <string name="lz_setvm_unlocking_space">正在请求 Android 解锁双开空间…</string>
+    <string name="lz_setvm_space_unlocked">双开空间已解锁。</string>
+    <string name="lz_setvm_unlock_needs_reboot">Android 把双开空间的加密存储保持在锁定状态，PrismSpace 没有权限代为解锁。请重启平板，重启后会自动解锁。</string>
+    <string name="lz_setvm_unlock_failed_reboot">已通过特权通道请求系统解锁，但本机型系统层没有初始化工作资料的加密选项（vold）。请重启平板，重启后会自动解锁。</string>
+    <string name="lz_setvm_rebooting">正在重启…</string>
+    <string name="lz_setvm_reboot_unavailable">无法直接重启：需要 root 或 Shizuku。请手动重启平板。</string>
     <string name="lz_setvm_incomplete_repaired">已启动双开空间修复，正在重新检查状态…</string>
     <string name="lz_setvm_incomplete_cannot_auto_repair">PrismSpace 无法安全地自动续接这个未完成资料。请删除后重新创建双开空间。</string>
     <string name="lz_setvm_orphan_profile">该工作资料由 %1$s 管理，而非 PrismSpace。请在 Android 系统设置中移除；PrismSpace 不会删除其他管理器的资料。</string>

@@ -27,7 +27,7 @@
     <string name="lz_pf_entry_pending_installs">Pending install</string>
     <string name="lz_pf_entry_pending_ready">Package ready · Android asks you to confirm</string>
     <string name="lz_files_gate_suspended">Resume the dual space in Settings before sending files</string>
-    <string name="lz_files_gate_locked">Unlock the dual space (lock-screen password) before sending files</string>
+    <string name="lz_files_gate_locked">The dual space is locked by the system. Unlock the device or reboot, then send files.</string>
     <string name="lz_files_gate_bridge">Repair the dual-space connection in Settings before sending files</string>
     <string name="lz_files_gate_missing">Set up the dual space before sending files</string>
     <string name="lz_files_gate_unknown">Repair the dual space in Settings before sending files</string>

@@ -163,9 +163,9 @@
     <string name="lz_home_tag_suspended">已暫停</string>
     <string name="lz_home_label_restore">恢復雙開空間</string>
     <string name="lz_home_status_locked_title">雙開空間已鎖定</string>
-    <string name="lz_home_status_locked_body">雙開空間需先解鎖（輸入螢幕鎖定密碼）後才能使用分身。</string>
-    <string name="lz_home_tag_locked">未解鎖</string>
-    <string name="lz_home_label_unlock">前往解鎖</string>
+    <string name="lz_home_status_locked_body">雙開空間被 Android 的儲存加密鎖住（這不是 PrismSpace 的密碼）。請解鎖裝置；若無效（或本機沒有螢幕鎖定密碼），重新啟動平板即可復原，重新啟動後會自動解鎖。</string>
+    <string name="lz_home_tag_locked">系統鎖定</string>
+    <string name="lz_home_label_unlock">查看復原方法</string>
     <string name="lz_home_status_checking_title">正在檢查雙開空間</string>
     <string name="lz_home_status_checking_body">正在確認主空間與雙開空間的連線狀態。</string>
     <string name="lz_home_tag_checking">檢查中</string>

@@ -38,7 +38,7 @@ class ContinueInstallGateTest {
             continueInstallGate(SpaceUsability.Suspended, testZhResolver).guidance,
         )
         assertEquals(
-            "请先解锁双开空间（锁屏密码），然后再继续安装",
+            "双开空间被系统锁定，请解锁设备或重启平板后再继续安装",
             continueInstallGate(SpaceUsability.LockedNeedsUnlock, testZhResolver).guidance,
         )
         assertEquals(

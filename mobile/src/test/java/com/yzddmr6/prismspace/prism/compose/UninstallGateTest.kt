@@ -40,7 +40,7 @@ class UninstallGateTest {
             uninstallGate(SpaceUsability.Suspended, testZhResolver).guidance,
         )
         assertEquals(
-            "请先解锁双开空间（锁屏密码），然后再卸载分身",
+            "双开空间被系统锁定，请解锁设备或重启平板后再卸载分身",
             uninstallGate(SpaceUsability.LockedNeedsUnlock, testZhResolver).guidance,
         )
         assertEquals(

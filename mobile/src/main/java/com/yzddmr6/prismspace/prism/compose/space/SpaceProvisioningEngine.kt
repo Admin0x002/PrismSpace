@@ -10,13 +10,10 @@ import com.yzddmr6.prismspace.util.Modules
 import com.yzddmr6.prismspace.util.UserHandles
 import com.yzddmr6.prismspace.util.Users
 import com.yzddmr6.prismspace.prism.compose.nav.SystemAppPickerPrompt
-import com.yzddmr6.prismspace.prism.compose.vm.CapabilityRepositoryProvider
-import com.yzddmr6.prismspace.prism.compose.vm.ShizukuUtil
 import com.yzddmr6.prismspace.prism.service.ProfileEntryLauncher
 import com.yzddmr6.prismspace.settings.PrismSettingsActivity
 import com.yzddmr6.prismspace.space.SpaceState
 import com.yzddmr6.prismspace.space.SpaceStateClassifier
-import eu.chainfire.libsuperuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -30,33 +27,8 @@ object SpaceProvisioningEngine {
 
     private const val DEFAULT_MAX_USERS_SETPROP = 10  // historical fw.max_users AOSP default; used only when the real cap is Unknown
 
-    private fun probeSu(): Boolean = isRootOutput(Shell.SU.run("id"))
-
     /** Resolves exactly one transport per operation; never falls back mid-transaction. */
-    private fun resolveShell(context: Context): PrivilegedShell? {
-        val capabilities = CapabilityRepositoryProvider.get(context)
-        val shizukuAuthorized = ShizukuUtil.isAuthorized()
-        var suAvailable: Boolean? = null  // null = not probed (Shizuku already won)
-        val transport = chooseTransport(shizukuAuthorized) { probeSu().also { suAvailable = it } }
-        DiagnosticLog.i(
-            TAG,
-            "transport resolve: shizukuAuthorized=$shizukuAuthorized suAvailable=$suAvailable chosen=${transport?.name ?: "none"}",
-        )
-        return when (transport) {
-            PrivilegedTransport.SHIZUKU -> {
-                capabilities.markShizukuReady()
-                ShizukuPrivilegedShell()
-            }
-            PrivilegedTransport.SU -> {
-                capabilities.markRootReady()
-                SuPrivilegedShell()
-            }
-            null -> {
-                capabilities.markRootUnavailable()
-                null
-            }
-        }
-    }
+    private fun resolveShell(context: Context): PrivilegedShell? = resolvePrivilegedShell(context)
 
     private fun maxUsersProperty(): String? =
         (Hacks.SystemProperties_get.invoke(MAX_USERS_PROPERTY).statically() as? String)?.takeIf { it.isNotBlank() }

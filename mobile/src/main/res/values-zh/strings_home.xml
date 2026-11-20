@@ -51,9 +51,9 @@
     <string name="lz_home_label_restore">恢复双开空间</string>
 
     <string name="lz_home_status_locked_title">双开空间已锁定</string>
-    <string name="lz_home_status_locked_body">双开空间需先解锁（输入锁屏密码）后才能使用分身。</string>
-    <string name="lz_home_tag_locked">未解锁</string>
-    <string name="lz_home_label_unlock">前往解锁</string>
+    <string name="lz_home_status_locked_body">双开空间被 Android 的存储加密锁住（这不是 PrismSpace 的密码）。请解锁设备；若无效（或本机没有锁屏密码），重启平板即可恢复，重启后会自动解锁。</string>
+    <string name="lz_home_tag_locked">系统锁定</string>
+    <string name="lz_home_label_unlock">查看恢复方法</string>
 
     <string name="lz_home_status_checking_title">正在检查双开空间</string>
     <string name="lz_home_status_checking_body">正在确认主空间与双开空间的连接状态。</string>

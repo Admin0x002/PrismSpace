@@ -26,7 +26,7 @@
     <string name="lz_set_resume_title">恢复双开空间</string>
     <string name="lz_set_resume_summary">请求 Android 关闭此工作资料的安静模式。</string>
     <string name="lz_set_unlock_title">解锁双开空间</string>
-    <string name="lz_set_unlock_summary">打开双开空间入口，由 Android 显示工作资料密码验证。</string>
+    <string name="lz_set_unlock_summary">被 Android 的存储加密锁住，不是 PrismSpace 的密码。有 root 或 Shizuku 时由 PrismSpace 请求系统解锁；否则重启平板即可恢复，重启后会自动解锁。</string>
     <string name="lz_set_reconnect_title">重新连接双开空间</string>
     <string name="lz_set_reconnect_permission_denied">跨资料权限被拒绝；请打开双开空间入口恢复连接。</string>
     <string name="lz_set_reconnect_profile_unavailable">工作资料当前不可达；请先恢复或解锁，再重新连接。</string>
@@ -41,11 +41,6 @@
     <string name="lz_set_delete_space_summary">永久删除双开空间及其中所有分身数据</string>
     <string name="lz_set_export_logs_title">导出诊断信息</string>
     <string name="lz_set_export_logs_summary">包含运行日志和设备状态，不包含文件内容</string>
-    <string name="lz_set_feedback_title">反馈与交流</string>
-    <string name="lz_set_feedback_summary">有问题反馈或交流讨论，微信搜索「%1$s」。</string>
-    <string name="lz_set_feedback_account">熵减矩阵</string>
-    <string name="lz_set_feedback_copy">复制</string>
-    <string name="lz_set_feedback_copied">已复制公众号名称</string>
     <string name="lz_set_about_title">关于 PrismSpace</string>
     <string name="lz_set_about_summary">项目介绍、版本与开源信息</string>
     <string name="lz_set_cancel">取消</string>
@@ -73,8 +68,13 @@
     <string name="lz_set_system_apps_summary">查看或添加双开空间中的系统应用</string>
     <string name="lz_set_multi_space_title">多个双开空间</string>
     <string name="lz_set_multi_space_summary">实验功能 · 仅部分定制系统可用；若设备已存在第二个双开空间，PrismSpace 会自动识别</string>
-    <string name="lz_set_suspend_disabled_locked">解锁后才能操作</string>
+    <string name="lz_set_suspend_disabled_locked">被系统锁定</string>
     <string name="lz_set_suspend_disabled_bridge">重新连接后才能操作</string>
+    <string name="lz_set_reboot_for_unlock_title">重启平板以解锁双开空间</string>
+    <string name="lz_set_reboot_for_unlock_summary">本机型无法在开机后解锁工作资料；重启后会自动恢复。</string>
+    <string name="lz_set_reboot_confirm_title">立即重启平板？</string>
+    <string name="lz_set_reboot_confirm_body">双开空间里的应用会先被关闭。开机后双开空间会自动解锁。</string>
+    <string name="lz_set_reboot_confirm_action">立即重启</string>
     <string name="lz_set_surplus_profiles_title">检测到未完成开通的空间</string>
     <string name="lz_set_surplus_profiles_summary">用户 %1$s 装有 PrismSpace 但未完成开通，占用系统工作资料名额，可能由外部工具创建。应用不会自动删除，可在系统设置中移除。</string>
     <string name="lz_set_surplus_profiles_removal_message">请打开系统设置 -（用户和）账号，找到未完成开通的工作资料后点选“移除工作资料”。设置中可能同时显示多个工作资料，请勿误删正在使用的双开空间，否则其中的分身与数据会一并删除。</string>

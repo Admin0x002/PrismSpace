@@ -22,6 +22,8 @@ import com.yzddmr6.prismspace.prism.compose.space.DeleteSpaceResult
 import com.yzddmr6.prismspace.prism.compose.space.SpaceDeletionCoordinator
 import com.yzddmr6.prismspace.prism.compose.space.PrismSpace
 import com.yzddmr6.prismspace.prism.compose.space.PrismSpaceKind
+import com.yzddmr6.prismspace.prism.compose.space.ProfileUnlocker
+import com.yzddmr6.prismspace.prism.compose.space.ProfileUnlockOutcome
 import com.yzddmr6.prismspace.prism.compose.space.SpaceRepository
 import com.yzddmr6.prismspace.prism.compose.space.SpaceRepositoryProvider
 import com.yzddmr6.prismspace.prism.compose.space.SpaceUsability
@@ -484,6 +486,10 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 					}
                     if (ok) {
                         setFeedback(str(R.string.lz_setvm_space_resumed), isError = false)
+                    } else if (Users.isProfileAvailable(context, profile) && !Users.isProfileUnlocked(context, profile)) {
+                        // Started but CE-locked: this ROM cannot clear it without a reboot, so say so
+                        // instead of blaming the activation request.
+                        setFeedback(str(R.string.lz_setvm_unlock_needs_reboot), isError = true)
                     } else {
                         setFeedback(str(R.string.lz_setvm_repair_failed, str(R.string.lz_setvm_profile_activation_failed)), isError = true)
                     }
@@ -535,13 +541,22 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
                     refreshCapabilities()
                 }
                 is SpaceRecoveryPlan.OpenProfileUnlock -> {
-                    val profile = UserHandles.of(plan.userId)
-                    val opened = ProfileEntryLauncher.start(context, profile)
-                    setFeedback(
-                        if (opened) str(R.string.lz_setvm_unlock_opened_profile)
-                        else str(R.string.lz_setvm_repair_failed, str(R.string.lz_setvm_profile_activation_failed)),
-                        isError = !opened,
-                    )
+                    // The profile entry cannot unlock CE storage (it is direct-boot aware and used to
+                    // crash there). Unlocking is a privileged operation, so ask a privileged shell and
+                    // report honestly when the ROM refuses.
+                    setFeedback(str(R.string.lz_setvm_unlocking_space), isError = false)
+                    val outcome = ProfileUnlocker.unlock(appContext, plan.userId)
+                    DiagnosticLog.i(TAG, "settings unlock plan=${plan} outcome=$outcome")
+                    when (outcome) {
+                        ProfileUnlockOutcome.Unlocked -> {
+                            stateRepo.refresh("settings_unlock")
+                            setFeedback(str(R.string.lz_setvm_space_unlocked), isError = false)
+                        }
+                        ProfileUnlockOutcome.NoPrivilegedShell ->
+                            setFeedback(str(R.string.lz_setvm_unlock_needs_reboot), isError = true)
+                        ProfileUnlockOutcome.StillLocked ->
+                            setFeedback(str(R.string.lz_setvm_unlock_failed_reboot), isError = true)
+                    }
                     refreshCapabilities()
                 }
                 is SpaceRecoveryPlan.RepairIncrementally -> {
@@ -581,6 +596,20 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
                     refreshCapabilities()
                 }
             }
+        }
+    }
+
+    /**
+     * Reboots the device to clear a CE lock this ROM cannot clear at runtime. Only the user can
+     * trigger it (the caller confirms first); without su/Shizuku there is no way to reboot and the
+     * user is told so instead of silently doing nothing.
+     */
+    fun rebootForUnlock(context: Context) {
+        viewModelScope.launch {
+            setFeedback(str(R.string.lz_setvm_rebooting), isError = false)
+            val requested = ProfileUnlocker.reboot(context.applicationContext)
+            DiagnosticLog.i(TAG, "reboot for unlock requested=$requested")
+            if (!requested) setFeedback(str(R.string.lz_setvm_reboot_unavailable), isError = true)
         }
     }
 

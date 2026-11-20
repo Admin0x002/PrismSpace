@@ -80,7 +80,7 @@ import com.yzddmr6.prismspace.setup.SetupFlow
 import com.yzddmr6.prismspace.util.Activities
 
 /** PrismSpace repository URL. */
-private const val PRISM_GITHUB_URL = "https://github.com/yzddmr6/PrismSpace"
+private const val PRISM_GITHUB_URL = "https://github.com/Admin0x002/PrismSpace"
 
 /**
  * 首页 = 状态 + 任务 + 待办 + 概览:

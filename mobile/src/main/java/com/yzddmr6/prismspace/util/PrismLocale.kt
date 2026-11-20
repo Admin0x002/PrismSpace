@@ -24,9 +24,19 @@ object PrismLocale {
     const val EN = "en"
     private const val KEY = "prism_locale"
 
-    fun getStored(context: Context): String =
+    /**
+     * Stored language tag, or [SYSTEM] when the preference store is unreadable.
+     *
+     * The store lives in credential-encrypted storage. Direct-boot-aware components (the profile
+     * entry, the watcher) can be started inside a CE-locked profile, where reading it throws
+     * `IllegalStateException` and would crash the process during `attachBaseContext` — the launcher
+     * saw that as an instant exit when the "unlock" button opened the profile entry. Falling back to
+     * the system locale keeps such a start harmless.
+     */
+    fun getStored(context: Context): String = runCatching {
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
-            .getString(KEY, SYSTEM) ?: SYSTEM
+            .getString(KEY, SYSTEM)
+    }.getOrNull() ?: SYSTEM
 
     fun setStored(context: Context, tag: String) {
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)

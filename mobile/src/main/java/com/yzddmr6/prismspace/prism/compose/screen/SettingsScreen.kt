@@ -1,7 +1,5 @@
 package com.yzddmr6.prismspace.prism.compose.screen
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -57,8 +55,6 @@ import com.yzddmr6.prismspace.prism.compose.component.SwitchRow
 import com.yzddmr6.prismspace.prism.compose.component.UpdateAvailableDialog
 import com.yzddmr6.prismspace.prism.compose.theme.PrismSpacing
 import com.yzddmr6.prismspace.mobile.R
-import com.yzddmr6.prismspace.prism.compose.vm.ActionFeedback
-import com.yzddmr6.prismspace.prism.compose.vm.AppFeedbackBus
 import com.yzddmr6.prismspace.prism.compose.vm.PrismMode
 import com.yzddmr6.prismspace.prism.compose.vm.prismModeLabelRes
 import com.yzddmr6.prismspace.prism.compose.vm.SettingsViewModel
@@ -98,12 +94,30 @@ fun SettingsScreen() {
     var showDeleteWarning by remember { mutableStateOf(false) }
     var showDeleteFinal by remember { mutableStateOf(false) }
     var showLangDialog by remember { mutableStateOf(false) }
+    var showRebootConfirm by remember { mutableStateOf(false) }
 
     if (showSpaceDetails) AlertDialog(
         onDismissRequest = { showSpaceDetails = false },
         title = { Text(stringResource(R.string.lz_shell_space_details)) },
         text = { Text(stringResource(R.string.lz_shell_space_details_summary, uiState?.cloneCount ?: 0)) },
         confirmButton = { PrismTextButton(onClick = { showSpaceDetails = false }) { Text(stringResource(android.R.string.ok)) } },
+    )
+
+    if (showRebootConfirm) AlertDialog(
+        onDismissRequest = { showRebootConfirm = false },
+        title = { Text(stringResource(R.string.lz_set_reboot_confirm_title)) },
+        text = { Text(stringResource(R.string.lz_set_reboot_confirm_body)) },
+        confirmButton = {
+            PrismTextButton(onClick = {
+                showRebootConfirm = false
+                vm.rebootForUnlock(context)
+            }) { Text(stringResource(R.string.lz_set_reboot_confirm_action)) }
+        },
+        dismissButton = {
+            PrismTextButton(onClick = { showRebootConfirm = false }) {
+                Text(stringResource(R.string.lz_set_cancel))
+            }
+        },
     )
 
     Scaffold(
@@ -149,6 +163,16 @@ fun SettingsScreen() {
                             else vm.repairSpace(context)
                         },
                     )
+                    // A CE-locked space cannot be unlocked by an app on every ROM. Offer the one
+                    // action that always recovers it: a user-confirmed reboot via a privileged shell.
+                    if (state.spaceUsability == com.yzddmr6.prismspace.prism.compose.space.SpaceUsability.LockedNeedsUnlock) {
+                        ActionRow(
+                            title = stringResource(R.string.lz_set_reboot_for_unlock_title),
+                            summary = stringResource(R.string.lz_set_reboot_for_unlock_summary),
+                            leadingIcon = PrismIcons.Refresh,
+                            onClick = { showRebootConfirm = true },
+                        )
+                    }
                     if (state.spaceUsability != com.yzddmr6.prismspace.prism.compose.space.SpaceUsability.NotProvisioned) {
                         val switch = suspendSwitchPresentation(state.spaceFreezeState, state.spaceUsability)
                         SwitchRow(
@@ -227,25 +251,6 @@ fun SettingsScreen() {
                     summary = stringResource(R.string.lz_set_export_logs_summary),
                     leadingIcon = Icons.Outlined.IosShare,
                     onClick = { vm.exportLogs(context) },
-                )
-                // Feedback and discussion.
-                val feedbackAccount = stringResource(R.string.lz_set_feedback_account)
-                val feedbackCopied = stringResource(R.string.lz_set_feedback_copied)
-                val copyFeedbackAccount = {
-                    context.getSystemService(ClipboardManager::class.java)
-                        ?.setPrimaryClip(ClipData.newPlainText(feedbackAccount, feedbackAccount))
-                    AppFeedbackBus.emit(ActionFeedback(feedbackCopied, isError = false))
-                }
-                ActionRow(
-                    title = stringResource(R.string.lz_set_feedback_title),
-                    summary = stringResource(R.string.lz_set_feedback_summary, feedbackAccount),
-                    leadingIcon = PrismIcons.Info,
-                    trailing = {
-                        PrismTextButton(onClick = copyFeedbackAccount) {
-                            Text(stringResource(R.string.lz_set_feedback_copy))
-                        }
-                    },
-                    onClick = copyFeedbackAccount,
                 )
                 NavRow(
                     title = stringResource(R.string.lz_set_about_title),

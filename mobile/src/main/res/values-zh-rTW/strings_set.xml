@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- SettingsScreen.kt -->
-    <string name="lz_set_feedback_title">回饋與交流</string>
-    <string name="lz_set_feedback_summary">有問題回饋或交流討論，微信搜尋「%1$s」。</string>
-    <string name="lz_set_feedback_account">熵减矩阵</string>
-    <string name="lz_set_feedback_copy">複製</string>
-    <string name="lz_set_feedback_copied">已複製公眾號名稱</string>
     <!-- 設定分組 -->
     <string name="lz_set_group_space">雙開空間</string>
     <string name="lz_set_group_clone_method">新增分身方式</string>
@@ -16,7 +11,7 @@
     <string name="lz_set_system_apps_summary">檢視或新增雙開空間中的系統應用程式</string>
     <string name="lz_set_multi_space_title">多個雙開空間</string>
     <string name="lz_set_multi_space_summary">實驗功能 · 僅部分定製系統可用；若裝置已存在第二個雙開空間，PrismSpace 會自動識別</string>
-    <string name="lz_set_suspend_disabled_locked">解鎖後才能操作</string>
+    <string name="lz_set_suspend_disabled_locked">被系統鎖定</string>
     <string name="lz_set_suspend_disabled_bridge">重新連線後才能操作</string>
     <string name="lz_set_surplus_profiles_title">偵測到未完成開通的空間</string>
     <string name="lz_set_surplus_profiles_summary">使用者 %1$s 裝有 PrismSpace 但未完成開通，佔用系統工作資料名額，可能由外部工具建立。應用程式不會自動刪除，可在系統設定中移除。</string>

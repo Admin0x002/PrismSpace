@@ -31,9 +31,9 @@ class HomeMapTest {
             R.string.lz_home_tag_suspended -> "已暂停"
             R.string.lz_home_label_restore -> "恢复双开空间"
             R.string.lz_home_status_locked_title -> "双开空间已锁定"
-            R.string.lz_home_status_locked_body -> "双开空间需先解锁（输入锁屏密码）后才能使用分身。"
-            R.string.lz_home_tag_locked -> "未解锁"
-            R.string.lz_home_label_unlock -> "前往解锁"
+            R.string.lz_home_status_locked_body -> "双开空间被 Android 的存储加密锁住（这不是 PrismSpace 的密码）。请解锁设备；若无效（或本机没有锁屏密码），重启平板即可恢复，重启后会自动解锁。"
+            R.string.lz_home_tag_locked -> "系统锁定"
+            R.string.lz_home_label_unlock -> "查看恢复方法"
             R.string.lz_home_status_checking_title -> "正在检查双开空间"
             R.string.lz_home_status_checking_body -> "正在确认主空间与双开空间的连接状态。"
             R.string.lz_home_tag_checking -> "检查中"
@@ -83,10 +83,10 @@ class HomeMapTest {
     }
 
     @Test
-    fun `Locked - level Warn, status title locked, tag 未解锁`() {
+    fun `Locked - level Warn, status title locked, tag 系统锁定`() {
         val model = mapHome(SpaceHealth.Locked, mainCount = 7, cloneCount = 2, resolve = resolve)
         assertEquals("双开空间已锁定", model.statusTitle)
-        assertEquals("未解锁", model.tag)
+        assertEquals("系统锁定", model.tag)
         assertEquals(PrismLevel.Warn, model.level)
     }
 

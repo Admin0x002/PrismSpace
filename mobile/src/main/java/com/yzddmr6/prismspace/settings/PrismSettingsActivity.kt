@@ -6,10 +6,12 @@ import android.content.Intent
 import android.content.Intent.ACTION_BOOT_COMPLETED
 import android.content.Intent.ACTION_MY_PACKAGE_REPLACED
 import android.os.Bundle
+import android.os.UserManager
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.yzddmr6.prismspace.PrismNameManager
+import com.yzddmr6.prismspace.analytics.DiagnosticLog
 import com.yzddmr6.prismspace.notification.NotificationPermissionPrompt
 import com.yzddmr6.prismspace.settings.profile.PrismProfileEntryScreen
 import com.yzddmr6.prismspace.shuttle.ShuttleProvider
@@ -40,6 +42,15 @@ class PrismSettingsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // This activity is direct-boot aware, so Android can start it inside a CE-locked profile.
+        // Nothing it renders can work before the profile's credential-encrypted storage is unlocked,
+        // and reading that storage throws. Finish instead of failing in the profile's process.
+        if (!isProfileUnlocked()) {
+            Log.i(TAG, "profile entry skipped: credential-encrypted storage is locked")
+            DiagnosticLog.i(TAG, "profile entry skipped user=${Users.currentId()} reason=ce_locked")
+            finish()
+            return
+        }
         // Sync this profile's display name back to the parent so parent-side UI
         // shows the renamed value promptly.
         if (! Users.isParentProfile()) {
@@ -55,6 +66,11 @@ class PrismSettingsActivity : ComponentActivity() {
         }
         setContent { PrismProfileEntryScreen() }
     }
+
+    /** This profile's own CE state; unknown or unavailable runtime reads optimistically keep the entry. */
+    private fun isProfileUnlocked(): Boolean = runCatching {
+        getSystemService(UserManager::class.java)?.isUserUnlocked ?: true
+    }.getOrDefault(true)
 
     /**
      * One-time enabler that runs on USER_INITIALIZE / MY_PACKAGE_REPLACED in managed profile.

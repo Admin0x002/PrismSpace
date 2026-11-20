@@ -27,7 +27,7 @@
     <string name="lz_pf_entry_pending_installs">待安装</string>
     <string name="lz_pf_entry_pending_ready">安装包已就绪 · 由 Android 询问你</string>
     <string name="lz_files_gate_suspended">请先在设置中恢复双开空间，然后再发送文件</string>
-    <string name="lz_files_gate_locked">请先解锁双开空间（锁屏密码），然后再发送文件</string>
+    <string name="lz_files_gate_locked">双开空间被系统锁定，请解锁设备或重启平板后再发送文件</string>
     <string name="lz_files_gate_bridge">请先在设置中修复双开空间连接，然后再发送文件</string>
     <string name="lz_files_gate_missing">请先创建双开空间，然后再发送文件</string>
     <string name="lz_files_gate_unknown">请先在设置中修复双开空间，然后再发送文件</string>

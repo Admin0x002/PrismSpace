@@ -47,7 +47,7 @@
     <string name="lz_xfer_picker_unavailable">The system file picker isn\'t available</string>
     <string name="lz_xfer_history_empty">No transfers yet. Files you send or receive appear here.</string>
     <string name="lz_files_open_gate_suspended">Resume the dual space in Settings before opening files</string>
-    <string name="lz_files_open_gate_locked">Unlock the dual space (lock-screen password) before opening files</string>
+    <string name="lz_files_open_gate_locked">The dual space is locked by the system. Unlock the device or reboot, then open the file.</string>
     <string name="lz_files_open_gate_bridge">Repair the dual-space connection in Settings before opening files</string>
     <string name="lz_files_open_gate_missing">Set up the dual space before opening files</string>
     <string name="lz_files_open_gate_unknown">Repair the dual space in Settings before opening files</string>
@@ -59,7 +59,7 @@
     <string name="lz_xfer_share_no_target">No app can receive these files</string>
     <string name="lz_xfer_share_failed">Couldn\'t open the share sheet in the %1$s</string>
     <string name="lz_xfer_share_gate_suspended">Resume the dual space in Settings before sharing from it</string>
-    <string name="lz_xfer_share_gate_locked">Unlock the dual space (lock-screen password) before sharing from it</string>
+    <string name="lz_xfer_share_gate_locked">The dual space is locked by the system. Unlock the device or reboot, then share from it.</string>
     <string name="lz_xfer_share_gate_bridge">Repair the dual-space connection in Settings before sharing from it</string>
     <string name="lz_xfer_share_gate_missing">Set up the dual space before sharing from it</string>
     <string name="lz_xfer_share_gate_unknown">Repair the dual space in Settings before sharing from it</string>

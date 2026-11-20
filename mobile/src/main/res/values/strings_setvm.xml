@@ -40,7 +40,12 @@
     <string name="lz_setvm_space_already_ready">Dual space is already ready</string>
     <string name="lz_setvm_bridge_repairing">Reconnecting dual space…</string>
     <string name="lz_setvm_bridge_repair_opened_profile">Opened the dual space. Return to PrismSpace and retry after it reconnects.</string>
-    <string name="lz_setvm_unlock_opened_profile">Opened the dual-space entry. Complete Android’s work-profile unlock, then return to PrismSpace.</string>
+    <string name="lz_setvm_unlocking_space">Asking Android to unlock the dual space…</string>
+    <string name="lz_setvm_space_unlocked">Dual space unlocked.</string>
+    <string name="lz_setvm_unlock_needs_reboot">Android keeps the dual space’s encrypted storage locked and PrismSpace cannot unlock it on its own. Reboot the device — the space unlocks automatically on boot.</string>
+    <string name="lz_setvm_unlock_failed_reboot">The privileged shell asked Android to unlock the dual space, but this ROM did not initialize the work profile’s encryption (vold). Reboot the device — the space unlocks automatically on boot.</string>
+    <string name="lz_setvm_rebooting">Rebooting…</string>
+    <string name="lz_setvm_reboot_unavailable">Cannot reboot directly: root or Shizuku is required. Please reboot the device manually.</string>
     <string name="lz_setvm_incomplete_repaired">Dual-space repair started. Rechecking its state…</string>
     <string name="lz_setvm_incomplete_cannot_auto_repair">PrismSpace cannot safely resume this incomplete profile automatically. Remove it and create the dual space again.</string>
     <string name="lz_setvm_orphan_profile">This work profile is managed by %1$s, not PrismSpace. Remove it from Android system settings; PrismSpace will not delete another manager’s profile.</string>

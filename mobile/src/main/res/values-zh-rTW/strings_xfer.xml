@@ -46,7 +46,7 @@
     <string name="lz_xfer_picker_unavailable">系統檔案選擇器無法使用</string>
     <string name="lz_xfer_history_empty">暫無傳輸記錄。傳出或收到的檔案會顯示在這裡。</string>
     <string name="lz_files_open_gate_suspended">請先在設定中恢復雙開空間，然後再開啟檔案</string>
-    <string name="lz_files_open_gate_locked">請先解鎖雙開空間（螢幕鎖定密碼），然後再開啟檔案</string>
+    <string name="lz_files_open_gate_locked">雙開空間被系統鎖定，請解鎖裝置或重新啟動平板後再開啟檔案</string>
     <string name="lz_files_open_gate_bridge">請先在設定中修復雙開空間連線，然後再開啟檔案</string>
     <string name="lz_files_open_gate_missing">請先建立雙開空間，然後再開啟檔案</string>
     <string name="lz_files_open_gate_unknown">請先在設定中修復雙開空間，然後再開啟檔案</string>
@@ -58,7 +58,7 @@
     <string name="lz_xfer_share_no_target">沒有可接收這些檔案的應用程式</string>
     <string name="lz_xfer_share_failed">無法在%1$s中開啟分享面板</string>
     <string name="lz_xfer_share_gate_suspended">請先在設定中恢復雙開空間，然後再繼續分享</string>
-    <string name="lz_xfer_share_gate_locked">請先解鎖雙開空間（螢幕鎖定密碼），然後再繼續分享</string>
+    <string name="lz_xfer_share_gate_locked">雙開空間被系統鎖定，請解鎖裝置或重新啟動平板後再繼續分享</string>
     <string name="lz_xfer_share_gate_bridge">請先在設定中修復雙開空間連線，然後再繼續分享</string>
     <string name="lz_xfer_share_gate_missing">請先建立雙開空間，然後再繼續分享</string>
     <string name="lz_xfer_share_gate_unknown">請先在設定中修復雙開空間，然後再繼續分享</string>

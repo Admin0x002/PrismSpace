@@ -1,6 +1,9 @@
 package com.yzddmr6.prismspace.prism.compose.space
 
+import android.content.Context
 import com.yzddmr6.prismspace.analytics.DiagnosticLog
+import com.yzddmr6.prismspace.prism.compose.vm.CapabilityRepositoryProvider
+import com.yzddmr6.prismspace.prism.compose.vm.ShizukuUtil
 import eu.chainfire.libsuperuser.Shell
 import rikka.shizuku.Shizuku
 import java.io.IOException
@@ -75,3 +78,39 @@ fun chooseTransport(shizukuAuthorized: Boolean, suAvailable: () -> Boolean): Pri
     suAvailable() -> PrivilegedTransport.SU
     else -> null
 }
+
+/** Probes su. Only used after Shizuku lost, so the user never sees an su prompt they don't need. */
+private fun probeSu(): Boolean = isRootOutput(Shell.SU.run("id"))
+
+/**
+ * Resolves exactly one privileged transport for a one-shot operation and records the outcome in
+ * the mode repository. Blocking (may raise an su prompt on the calling thread's process), so every
+ * caller runs it off the main thread.
+ */
+fun resolvePrivilegedShell(context: Context): PrivilegedShell? {
+    val capabilities = CapabilityRepositoryProvider.get(context.applicationContext)
+    val shizukuAuthorized = ShizukuUtil.isAuthorized()
+    var suAvailable: Boolean? = null  // null = not probed (Shizuku already won)
+    val transport = chooseTransport(shizukuAuthorized) { probeSu().also { suAvailable = it } }
+    DiagnosticLog.i(
+        SHELL_TAG,
+        "transport resolve: shizukuAuthorized=$shizukuAuthorized suAvailable=$suAvailable " +
+            "chosen=${transport?.name ?: "none"}",
+    )
+    return when (transport) {
+        PrivilegedTransport.SHIZUKU -> {
+            capabilities.markShizukuReady()
+            ShizukuPrivilegedShell()
+        }
+        PrivilegedTransport.SU -> {
+            capabilities.markRootReady()
+            SuPrivilegedShell()
+        }
+        null -> {
+            capabilities.markRootUnavailable()
+            null
+        }
+    }
+}
+
+private const val SHELL_TAG = "Prism.Shell"

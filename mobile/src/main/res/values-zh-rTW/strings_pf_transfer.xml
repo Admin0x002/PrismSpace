@@ -9,7 +9,7 @@
     <string name="lz_pf_entry_pending_installs">待安裝</string>
     <string name="lz_pf_entry_pending_ready">安裝包已就緒 · 由 Android 詢問你</string>
     <string name="lz_files_gate_suspended">請先在設定中恢復雙開空間，然後再傳送檔案</string>
-    <string name="lz_files_gate_locked">請先解鎖雙開空間（螢幕鎖定密碼），然後再傳送檔案</string>
+    <string name="lz_files_gate_locked">雙開空間被系統鎖定，請解鎖裝置或重新啟動平板後再傳送檔案</string>
     <string name="lz_files_gate_bridge">請先在設定中修復雙開空間連線，然後再傳送檔案</string>
     <string name="lz_files_gate_missing">請先建立雙開空間，然後再傳送檔案</string>
     <string name="lz_files_gate_unknown">請先在設定中修復雙開空間，然後再傳送檔案</string>

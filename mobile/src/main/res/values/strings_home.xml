@@ -51,9 +51,9 @@
     <string name="lz_home_label_restore">Restore dual space</string>
 
     <string name="lz_home_status_locked_title">Dual space locked</string>
-    <string name="lz_home_status_locked_body">Unlock the dual space first (enter the lock-screen password) before using clones.</string>
-    <string name="lz_home_tag_locked">Locked</string>
-    <string name="lz_home_label_unlock">Unlock</string>
+    <string name="lz_home_status_locked_body">Android’s storage encryption is holding the dual space locked — this is not a PrismSpace password. Unlock the device; if that does not help (or the device has no screen lock), reboot — the space unlocks automatically on boot.</string>
+    <string name="lz_home_tag_locked">Locked by system</string>
+    <string name="lz_home_label_unlock">Recovery options</string>
 
     <string name="lz_home_status_checking_title">Checking dual space</string>
     <string name="lz_home_status_checking_body">PrismSpace is confirming the connection between spaces.</string>
