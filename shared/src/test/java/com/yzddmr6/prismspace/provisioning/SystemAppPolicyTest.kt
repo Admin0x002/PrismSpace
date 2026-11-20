@@ -6,6 +6,7 @@ import com.yzddmr6.prismspace.provisioning.TargetState.Companion.AVAILABLE
 import com.yzddmr6.prismspace.provisioning.TargetState.Companion.UNAVAILABLE
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -27,7 +28,36 @@ class SystemAppPolicyTest {
         exempt: Set<String> = emptySet(),
         overrides: Map<String, SystemAppOverride> = emptyMap(),
         facts: List<PackageFact> = emptyList(),
-    ) = PolicyInputs(defaults, critical, exempt, overrides, facts)
+        blocked: Set<String> = emptySet(),
+    ) = PolicyInputs(defaults, critical, exempt, overrides, facts, blocked)
+
+    @Test fun blockedVendorServicesStayUnavailable() {
+        // The .qms crash loop is caused by one of these: keeping the package hidden + suspended in
+        // the space is the only way an app-level policy can stop its components from starting.
+        assertEquals(
+            UNAVAILABLE,
+            SystemAppPolicy.evaluate(inputs(
+                blocked = setOf("vendor.qti.data.txpwradmin"),
+                facts = listOf(fact("vendor.qti.data.txpwradmin", launcher = false)),
+            ))["vendor.qti.data.txpwradmin"],
+        )
+        // An explicit Enable cannot resurrect a blocked package...
+        assertEquals(
+            UNAVAILABLE,
+            SystemAppPolicy.evaluate(inputs(
+                blocked = setOf("vendor.qti.data.txpwradmin"),
+                overrides = mapOf("vendor.qti.data.txpwradmin" to Enabled),
+                facts = listOf(fact("vendor.qti.data.txpwradmin", launcher = false)),
+            ))["vendor.qti.data.txpwradmin"],
+        )
+        // ...and a blocked package that is not installed here is left alone rather than fabricated.
+        assertNull(
+            SystemAppPolicy.evaluate(inputs(
+                blocked = setOf("vendor.qti.data.txpwradmin"),
+                facts = listOf(fact("vendor.qti.data.txpwradmin", installed = false)),
+            ))["vendor.qti.data.txpwradmin"],
+        )
+    }
 
     @Test fun rulesByPriority() {
         val cases = listOf(

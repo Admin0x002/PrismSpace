@@ -26,6 +26,8 @@ data class PolicyInputs(
     val exemptSet: Set<String>,
     val overrides: Map<String, SystemAppOverride>,
     val facts: List<PackageFact>,
+    /** Packages that must stay unavailable in the space whatever the selection says. */
+    val blockedSet: Set<String> = emptySet(),
 )
 
 data class TargetState(val enabled: Boolean, val hidden: Boolean, val suspended: Boolean) {
@@ -53,6 +55,7 @@ object SystemAppPolicy {
         val facts = inputs.facts.associateBy(PackageFact::pkg)
         val candidates = LinkedHashSet<String>().apply {
             addAll(inputs.criticalSet)
+            addAll(inputs.blockedSet)
             addAll(inputs.overrides.keys)
             addAll(inputs.defaultSet)
             addAll(facts.keys)
@@ -62,6 +65,9 @@ object SystemAppPolicy {
             val fact = facts[pkg]
             val target = when {
                 pkg in inputs.criticalSet -> TargetState.AVAILABLE                                      // R1
+                // Blocked vendor services: kept out of every space, installed here or not. A hidden +
+                // suspended package cannot start its components, so its crash loop ends with it.
+                pkg in inputs.blockedSet -> if (fact?.installed == true) TargetState.UNAVAILABLE else null // R1b
                 fact != null && !fact.isSystem -> null                                                  // R2
                 pkg in inputs.exemptSet -> null                                                         // R3
                 inputs.overrides[pkg] == SystemAppOverride.Disabled ->                                  // R4

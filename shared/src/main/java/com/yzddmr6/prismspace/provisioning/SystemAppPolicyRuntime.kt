@@ -169,6 +169,7 @@ internal class SystemAppPolicyEngine(
         exemptSet = collected.exempt,
         overrides = state.overrides,
         facts = collected.facts,
+        blockedSet = SystemAppBlocklist.packages,
     ))
 
     /** First contact with a space: zero-diff seeding for completed spaces, Pending for fresh ones. */

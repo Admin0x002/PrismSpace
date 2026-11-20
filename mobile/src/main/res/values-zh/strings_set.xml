@@ -3,7 +3,6 @@
     <!-- SettingsScreen.kt -->
     <string name="lz_set_title">设置</string>
     <string name="lz_set_run_mode">运行模式</string>
-    <string name="lz_set_check_update_title">检查更新</string>
     <string name="lz_set_check_update_summary">点按检查是否有新版本</string>
     <string name="lz_set_update_title">发现新版本 %1$s</string>
     <string name="lz_set_update_download">前往下载</string>

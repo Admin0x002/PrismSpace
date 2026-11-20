@@ -62,7 +62,6 @@ import com.yzddmr6.prismspace.prism.compose.component.GroupCard
 import com.yzddmr6.prismspace.prism.compose.component.PrismIcons
 import com.yzddmr6.prismspace.prism.compose.component.StatusHeroCard
 import com.yzddmr6.prismspace.prism.compose.component.StatusRow
-import com.yzddmr6.prismspace.prism.compose.component.UpdateAvailableDialog
 import com.yzddmr6.prismspace.prism.compose.nav.AppLaunchSignals
 import com.yzddmr6.prismspace.prism.compose.nav.PrismRoutes
 import com.yzddmr6.prismspace.prism.compose.nav.navigateToTab
@@ -93,7 +92,6 @@ private const val PRISM_GITHUB_URL = "https://github.com/Admin0x002/PrismSpace"
 fun HomeScreen(nav: NavHostController) {
     val vm: HomeViewModel = viewModel()
     val uiState by vm.uiState.collectAsState()
-    val updateInfo by vm.updateInfo.collectAsState()
     val pendingCrashReport by vm.pendingCrashReport.collectAsState()
     val context = LocalContext.current
     val activity = Activities.findActivityFrom(context)
@@ -307,9 +305,6 @@ fun HomeScreen(nav: NavHostController) {
     }
 
     // ── 自动检查更新：发现新版本时弹窗（「稍后」后同版本不再提示） ──────────────
-    updateInfo?.let { info ->
-        UpdateAvailableDialog(info = info, context = context, onDismiss = { vm.dismissUpdate() })
-    }
 
     // ── 上次运行异常退出：询问是否发送诊断日志（确认/拒绝都只提示一次） ──────────
     if (pendingCrashReport) {

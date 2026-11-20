@@ -237,9 +237,6 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
     private val _uiState = MutableStateFlow<HomeUiModel?>(null)
     val uiState: StateFlow<HomeUiModel?> = _uiState
 
-    private val _updateInfo = MutableStateFlow<UpdateInfo?>(null)
-    val updateInfo: StateFlow<UpdateInfo?> = _updateInfo
-
     private val _pendingCrashReport = MutableStateFlow(false)
     val pendingCrashReport: StateFlow<Boolean> = _pendingCrashReport
 
@@ -252,13 +249,6 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
                     is SpaceSnapshot.Loaded -> render(snapshot.state)
                 }
             }
-        }
-        viewModelScope.launch {
-            // Show the still-undismissed pending prompt instantly, then refresh silently in the
-            // background (throttled; failures never surface and keep the pending prompt).
-            _updateInfo.value = UpdateChecker.pendingPrompt(getApplication())
-            val decision = UpdateChecker.check(getApplication(), force = false)
-            if (decision is UpdateDecision.Prompt) _updateInfo.value = decision.info
         }
         viewModelScope.launch {
             _pendingCrashReport.value = withContext(Dispatchers.IO) {
@@ -295,12 +285,6 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
         CrashMarker.clear(getApplication())
         _pendingCrashReport.value = false
         DiagnosticLog.i(TAG, "pending crash report dismissed by user")
-    }
-
-    /** Dismiss the home update dialog: the same version never prompts again automatically. */
-    fun dismissUpdate() {
-        _updateInfo.value?.let { UpdateChecker.markDismissed(getApplication(), it.version) }
-        _updateInfo.value = null
     }
 
     fun refresh() {

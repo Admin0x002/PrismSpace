@@ -3,7 +3,6 @@
     <!-- SettingsScreen.kt -->
     <string name="lz_set_title">Settings</string>
     <string name="lz_set_run_mode">Run mode</string>
-    <string name="lz_set_check_update_title">Check for updates</string>
     <string name="lz_set_check_update_summary">Tap to check for a newer version</string>
     <string name="lz_set_update_title">New version %1$s available</string>
     <string name="lz_set_update_download">Download</string>

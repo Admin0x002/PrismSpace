@@ -94,7 +94,6 @@ data class SettingsUiModel(
     // Single source of truth for which mode the user has selected
     val selectedMode: PrismMode = PrismMode.Normal,
     // Non-null when an update check found a newer release.
-    val updateInfo: UpdateInfo? = null,
     val spaceActionTitle: String = "",
     val spaceActionSummary: String = "",
     val spaceActionNeedsConfirmation: Boolean = true,
@@ -212,9 +211,6 @@ private const val REPAIR_CONVERGENCE_POLL_MS = 500L
 private const val PRISM_PROBE_PACKAGE = "com.yzddmr6.prismprobe"
 private const val BYTES_PER_MB = 1024L * 1024L
 
-/** Centralized PrismSpace repository URL. */
-const val PRISM_RELEASES_URL = "https://github.com/yzddmr6/PrismSpace"
-
 class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val spaceRepo: SpaceRepository by lazy { SpaceRepositoryProvider.get(getApplication()) }
@@ -291,31 +287,6 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
     // and emits success feedback; otherwise keeps current mode + emits error feedback.
     // Returns true if authorized (used by ModeGuideSheet button).
     // ---------------------------------------------------------------------------
-    /**
-     * 检查更新: query the GitHub Releases API for the latest release, compare its tag_name to the
-     * installed versionName, and surface the update dialog (notes + release page) when newer.
-     * The manual check always runs; the automatic home-page check shares the same UpdateChecker.
-     */
-    fun checkForUpdate() {
-        setFeedback(str(R.string.lz_setvm_update_checking), isError = false)
-        viewModelScope.launch {
-            when (val decision = UpdateChecker.check(getApplication(), force = true)) {
-                is UpdateDecision.Prompt ->
-                    _uiState.value = _uiState.value?.copy(updateInfo = decision.info)
-                UpdateDecision.NoPrompt ->
-                    setFeedback(str(R.string.lz_setvm_update_latest, UpdateChecker.currentVersion(getApplication())), isError = false)
-                UpdateDecision.Unavailable ->
-                    setFeedback(str(R.string.lz_setvm_update_failed), isError = true)
-            }
-        }
-    }
-
-    /** Dismiss the update dialog (用户点「稍后」): the same version never prompts again automatically. */
-    fun dismissUpdate() {
-        _uiState.value?.updateInfo?.let { UpdateChecker.markDismissed(getApplication(), it.version) }
-        _uiState.value = _uiState.value?.copy(updateInfo = null)
-    }
-
     fun checkShizuku(): Boolean {
         val authorized = isShizukuAuthorized()
         if (authorized) {

@@ -26,9 +26,6 @@
     <string name="lz_setvm_partial_fail_resume">%1$d clone(s) could not be unfrozen. Please try again shortly.</string>
     <string name="lz_setvm_all_fail_freeze">No clones could be frozen — usually because they are device-admin apps or running in the foreground. Close those apps (or revoke their device-admin in system settings) and try again.</string>
     <string name="lz_setvm_all_fail_unfreeze">No clones could be unfrozen. Please try again shortly.</string>
-    <string name="lz_setvm_update_checking">Checking for updates…</string>
-    <string name="lz_setvm_update_latest">You\'re on the latest version (%1$s)</string>
-    <string name="lz_setvm_update_failed">Update check failed. Check your connection and retry.</string>
     <string name="lz_setvm_suspend_failed">Suspend failed: %1$s. Export the diagnostic log for details.</string>
     <string name="lz_setvm_resume_failed">Resume failed: %1$s. Export the diagnostic log for details.</string>
 

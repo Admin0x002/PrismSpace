@@ -26,9 +26,6 @@
     <string name="lz_setvm_partial_fail_resume">%1$d 个分身未能解冻，请稍后重试。</string>
     <string name="lz_setvm_all_fail_freeze">没有分身能被冻结——通常是因为它们是设备管理员应用或正在前台运行。请先关闭这些应用（或在系统设置中撤销其设备管理员权限）后重试。</string>
     <string name="lz_setvm_all_fail_unfreeze">没有分身能被解冻，请稍后重试。</string>
-    <string name="lz_setvm_update_checking">正在检查更新…</string>
-    <string name="lz_setvm_update_latest">已是最新版本（%1$s）</string>
-    <string name="lz_setvm_update_failed">检查更新失败，请检查网络后重试</string>
     <string name="lz_setvm_suspend_failed">挂起失败：%1$s。可导出诊断日志查看详情</string>
     <string name="lz_setvm_resume_failed">恢复失败：%1$s。可导出诊断日志查看详情</string>
 

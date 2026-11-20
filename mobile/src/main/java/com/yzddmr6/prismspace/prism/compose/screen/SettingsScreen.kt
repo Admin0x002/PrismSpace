@@ -52,7 +52,6 @@ import com.yzddmr6.prismspace.prism.compose.component.PrismTextButton
 import com.yzddmr6.prismspace.prism.compose.component.RepairConfirmSheet
 import com.yzddmr6.prismspace.prism.compose.component.StatusRow
 import com.yzddmr6.prismspace.prism.compose.component.SwitchRow
-import com.yzddmr6.prismspace.prism.compose.component.UpdateAvailableDialog
 import com.yzddmr6.prismspace.prism.compose.theme.PrismSpacing
 import com.yzddmr6.prismspace.mobile.R
 import com.yzddmr6.prismspace.prism.compose.vm.PrismMode
@@ -234,13 +233,6 @@ fun SettingsScreen() {
                     leadingIcon = Icons.Outlined.Language,
                     onClick = { showLangDialog = true },
                 )
-                // GitHub Releases update check.
-                ActionRow(
-                    title = stringResource(R.string.lz_set_check_update_title),
-                    summary = stringResource(R.string.lz_shell_current_version, context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: ""),
-                    leadingIcon = PrismIcons.Refresh,
-                    onClick = { vm.checkForUpdate() },
-                )
             }
 
             // ── 支持 ────────────────────────────────────────────────────
@@ -379,8 +371,5 @@ fun SettingsScreen() {
     }
 
     // ── update-available dialog ───────────────────────────────────────────────
-    uiState?.updateInfo?.let { info ->
-        UpdateAvailableDialog(info = info, context = context, onDismiss = { vm.dismissUpdate() })
-    }
 
 }
