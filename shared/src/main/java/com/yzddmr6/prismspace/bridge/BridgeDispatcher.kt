@@ -87,11 +87,11 @@ internal object BridgeDispatcher {
             )
             is ApplySpaceGovernance -> success(
                 command,
-                com.yzddmr6.prismspace.prism.compose.space.CrossSpaceGovernance.applyAll(context, command.policies),
+                com.yzddmr6.prismspace.provisioning.CrossSpaceGovernance.applyAll(context, command.policies),
             )
             QuerySpaceGovernance -> success(
                 QuerySpaceGovernance,
-                com.yzddmr6.prismspace.prism.compose.space.CrossSpaceGovernance.report(context, emptyList()),
+                com.yzddmr6.prismspace.provisioning.CrossSpaceGovernance.report(context, emptyList()),
             )
             is QueryBlockableAppsPage -> success(
                 command,

@@ -1,4 +1,4 @@
-package com.yzddmr6.prismspace.prism.compose.space
+package com.yzddmr6.prismspace.provisioning
 
 import android.app.admin.DevicePolicyManager
 import android.content.Context
