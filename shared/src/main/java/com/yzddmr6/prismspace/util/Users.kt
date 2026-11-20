@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.*
 import android.os.Process
+import android.os.SystemClock
 import android.os.UserHandle
 import android.os.UserManager
 import android.util.Log
@@ -25,9 +26,9 @@ import com.yzddmr6.prismspace.space.SpaceFacts
 import com.yzddmr6.prismspace.space.SpaceStateClassifier
 import com.yzddmr6.prismspace.util.PseudoContentProvider
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArraySet
-import kotlin.coroutines.resume
 
 /**
  * Utility class for user-related helpers. Only works within the process where this provider is declared to be running.
@@ -242,42 +243,51 @@ class Users : PseudoContentProvider() {
 					Log.i(TAG, "PrismSpace ${profile.toId()} is already available")
 					return@coroutineScope true
 				}
-				val intent = waitForBroadcast(context, Intent.ACTION_MANAGED_PROFILE_AVAILABLE, timeout) {
-					launch {
-						Log.i(TAG, "Activating PrismSpace ${profile.toId()}...")
-						val activating = runCatching {
-							if (DevicePolicies(context).isProfileOrDeviceOwnerOnCallingUser) {
-								HomeRole.runWithHomeRole(context) { um.requestQuietModeEnabled(false, profile) }
-							} else {
-								// A normal parent app cannot change DPM preferred activities. Launching
-								// its profile entry lets Android present the work-profile activation UI.
-								val launcher = context.getSystemService<LauncherApps>()!!
-								val entry = launcher.getActivityList(context.packageName, profile).firstOrNull()
-								if (entry == null) false else {
-									launcher.startMainActivity(entry.componentName, profile, null, null)
-									true
-								}
+				// Ask Android once, then wait for the two facts the space actually needs: started and
+				// CE-unlocked. Waiting on ACTION_MANAGED_PROFILE_AVAILABLE alone is not equivalent —
+				// the broadcast can arrive while CE is still locked, and on slow ROMs the unlock lands
+				// seconds after it. That mismatch made the UI report a failure for a space that came
+				// up healthy moments later.
+				val activation = launch {
+					Log.i(TAG, "Activating PrismSpace ${profile.toId()}...")
+					val activating = runCatching {
+						if (DevicePolicies(context).isProfileOrDeviceOwnerOnCallingUser) {
+							HomeRole.runWithHomeRole(context) { um.requestQuietModeEnabled(false, profile) }
+						} else {
+							// A normal parent app cannot change DPM preferred activities. Launching
+							// its profile entry lets Android present the work-profile activation UI.
+							val launcher = context.getSystemService<LauncherApps>()!!
+							val entry = launcher.getActivityList(context.packageName, profile).firstOrNull()
+							if (entry == null) false else {
+								launcher.startMainActivity(entry.componentName, profile, null, null)
+								true
 							}
-						}.onFailure { e ->
-							Log.e(TAG, "Failed to request quiet mode disabled for user ${profile.toId()}", e)
-						}.getOrDefault(false)
-						if (! activating) it.resume(null)
-						Log.i(TAG, "Waiting for PrismSpace ${profile.toId()} to be ready...") }}
-			val user = intent?.getParcelableExtra<UserHandle>(Intent.EXTRA_USER)
-				val available = user == profile && isProfileAvailable(context, profile)
-				// "Available" (started, not quiet) arrives before CE unlock and can arrive without it:
-				// several ROMs start a profile after boot but never clear its credential-encrypted
-				// storage. Reporting that as success made the UI claim the space was resumed while
-				// nothing inside it could run.
-				val unlocked = available && isProfileUnlocked(context, profile)
-				if (available && !unlocked)
-					Log.w(TAG, "PrismSpace ${profile.toId()} is available but CE-locked")
-				val ready = unlocked
-				Log.i(TAG, "PrismSpace ${profile.toId()} activation confirmed=$ready")
-				return@coroutineScope ready
+						}
+					}.onFailure { e ->
+						Log.e(TAG, "Failed to request quiet mode disabled for user ${profile.toId()}", e)
+					}.getOrDefault(false)
+					if (! activating) Log.w(TAG, "activation request rejected user=${profile.toId()}")
+					Log.i(TAG, "Waiting for PrismSpace ${profile.toId()} to be ready...") }
+				try {
+					val deadline = SystemClock.elapsedRealtime() + timeout
+					while (SystemClock.elapsedRealtime() < deadline) {
+						if (isProfileAvailable(context, profile) && isProfileUnlocked(context, profile)) {
+							Log.i(TAG, "PrismSpace ${profile.toId()} activation confirmed")
+							return@coroutineScope true
+						}
+						delay(ACTIVATION_POLL_MS)
+					}
+					Log.i(TAG, "PrismSpace ${profile.toId()} activation confirmed=false")
+					false
+				} finally {
+					activation.cancel()
+				}
 		}
 
-		private const val ACTIVATION_TIMEOUT: Long = 15_000		// May need to wait for user credential
+		// Profile activation on slow ROMs needs well over the old 15 s: a 19 s resume was observed
+		// here, and the timeout must outlast the CE unlock that follows the start.
+		private const val ACTIVATION_TIMEOUT: Long = 45_000
+		private const val ACTIVATION_POLL_MS: Long = 500
 
 		private var mDebugBuild = false
 		private var sProfileCount: Int = 0
