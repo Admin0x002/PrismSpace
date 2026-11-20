@@ -80,34 +80,11 @@ import kotlinx.coroutines.launch
 		if (NotificationIds.PrismWatcher.isBlocked(context)) return
 
 		if (context.getSystemService<UserManager>()?.isUserUnlocked == false) return    // Not unlocked yet
-		val canRestart = policies.isManagedProfile && ! policies.invoke(DPM::isUsingUnifiedPassword)
-				&& policies.manager.storageEncryptionStatus == ENCRYPTION_STATUS_ACTIVE_PER_USER
-
-		NotificationIds.PrismWatcher.post(context) {
-			setOngoing(true).setGroup(GROUP).setGroupSummary(true).setCategory(CATEGORY_STATUS).setVisibility(VISIBILITY_PUBLIC)
-			setSmallIcon(com.yzddmr6.prismspace.shared.R.drawable.ic_landscape_black_24dp)
-			setLargeIcon(Icon.createWithBitmap(getAppIcon(context)))
-			setColor(context.getColor(com.yzddmr6.prismspace.shared.R.color.primary))
-			setContentTitle(context.getString(R.string.notification_space_watcher_title, PrismNameManager.getName(context)))
-			setContentText(context.getText(if (canRestart) R.string.notification_space_watcher_text_for_restart
-				else R.string.notification_space_watcher_text_for_deactivate))
-			if (canRestart) addServiceAction(context, R.string.action_restart_space, Intent.ACTION_REBOOT)
-			addServiceAction(context, R.string.action_deactivate_space)
-			addAction(Notification.Action.Builder(null, context.getText(R.string.action_settings), PendingIntent.getActivity(context, 0,
-				NotificationIds.PrismWatcher.buildChannelSettingsIntent(context), FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)).build()) }
-	}
-
-	private fun Notification.Builder.addServiceAction(context: Context, @StringRes label: Int, action: String? = null) {
-		addAction(Notification.Action.Builder(null, context.getText(label), PendingIntent.getService(context, 0,
-			Intent(context, PrismDeactivationService::class.java).setAction(action), FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)).build())
-	}
-
-	private fun getAppIcon(context: Context): Bitmap {
-		val size = context.resources.getDimensionPixelSize(android.R.dimen.app_icon_size)
-		return createBitmap(size, size).also { bitmap ->
-			context.applicationInfo.loadIcon(context.packageManager).apply {
-				setBounds(0, 0, size, size)
-				draw(Canvas(bitmap)) }}
+		// Fork change: a dual space posts no notifications. This watcher used to keep an ongoing
+		// "停用空间 / 重启空间" notification alive in the profile, which the parent space shows as a
+		// work-badged notification after every boot. Space controls live in the main app and in the
+		// system's own "工作应用" switch instead.
+		Log.i(TAG, "space watcher: notification suppressed (fork)")
 	}
 
 	class PrismDeactivationService: Service() {

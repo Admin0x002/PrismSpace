@@ -18,5 +18,18 @@ object SystemAppBlocklist {
         // (thousands of crashes per minute, with log flooding and battery drain) that the profile
         // cannot use or stop from the UI.
         "vendor.qti.data.txpwradmin",
+        // OPPO accessory app (earbuds). Provisioning drops it into every profile; it has no meaning
+        // inside a space and polls Bluetooth/accessory state on its own.
+        "com.heytap.accessory",
+        // ColorOS background services: telemetry, AI glue, statistics, push channel and the
+        // assistant screen. None of them is needed to run apps inside a space, and all of them keep
+        // a process alive in the profile.
+        "com.oplus.pantanal.ums",       // user/telemetry data service (:cardconfig included)
+        "com.oplus.metis",              // "smart" AI service
+        "com.oplus.statistics.rom",     // ROM statistics upload
+        "com.oplus.deepthinker",        // OPPO "deepthinker" engine
+        "com.coloros.sceneservice",     // ColorOS scene service
+        "com.heytap.mcs",               // OPPO push channel
+        "com.coloros.assistantscreen",  // assistant screen (负一屏)
     )
 }
