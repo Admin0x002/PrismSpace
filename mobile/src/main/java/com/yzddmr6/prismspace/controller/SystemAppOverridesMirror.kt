@@ -66,6 +66,36 @@ object SystemAppOverridesMirror {
         return recorded.map { (pkg, choice) -> SystemAppOverrideChange(pkg, choice) }
     }
 
+    /** Full recorded map, for the config backup export. */
+    fun exportForBackup(context: Context): Map<String, SystemAppChoice> {
+        val prefs = context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
+        return readableChoices().flatMap { choice ->
+            prefs.getStringSet(bucketKey(choice), emptySet()).orEmpty().map { it to choice }
+        }.toMap()
+    }
+
+    /**
+     * Writes overrides from an imported document without touching the recorded profile id, so the
+     * next space start replays them through [takePendingRestore] like any other change.
+     */
+    fun importForBackup(context: Context, changes: List<SystemAppOverrideChange>) {
+        if (changes.isEmpty()) return
+        val prefs = context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
+        val buckets = readableChoices().associateWith { choice ->
+            prefs.getStringSet(bucketKey(choice), emptySet()).orEmpty().toMutableSet()
+        }.toMutableMap()
+        changes.forEach { change ->
+            buckets.values.forEach { it.remove(change.pkg) }
+            if (change.choice != SystemAppChoice.Clear) buckets.getValue(change.choice).add(change.pkg)
+        }
+        // Bumping the recorded user to -1 marks the mirror as "not yet applied" for whatever space
+        // exists next; the restore path picks it up.
+        val editor = prefs.edit().putInt(KEY_USER_ID, -1)
+        buckets.forEach { (choice, set) -> editor.putStringSet(bucketKey(choice), set) }
+        editor.commit()
+        DiagnosticLog.i(TAG, "import backup: ${changes.size} overrides pending restore")
+    }
+
     /** Marks the mirror as belonging to [userId] after a successful restore. */
     fun confirmRestored(context: Context, userId: Int) {
         val prefs = context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
