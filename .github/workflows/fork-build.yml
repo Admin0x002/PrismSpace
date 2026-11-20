@@ -1,0 +1,52 @@
+name: Fork Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Gradle task to build (debug APK is installable with the Android debug key)'
+        required: true
+        default: ':assembly:assembleCompleteNormalDebug'
+        type: choice
+        options:
+          - ':assembly:assembleCompleteNormalDebug'
+          - ':assembly:assembleCompleteNormalRelease'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ANDROID_HOME: /usr/local/lib/android/sdk
+  ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+  GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew --no-daemon --max-workers=2 "${{ inputs.variant }}"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: prismspace-apk
+          path: assembly/build/outputs/apk/**/*.apk
+          if-no-files-found: error

@@ -62,8 +62,9 @@ import static android.content.pm.ProviderInfo.FLAG_SINGLE_USER;
 				"com.android.documentsui",				// Documents UI (part of Android Storage Access Framework)
 				"com.google.android.documentsui",		// Google/MIUI DocumentsUI package name on some ROMs.
 					Hacks.PrintManager_PRINT_SPOOLER_PACKAGE_NAME.get(),	// Print spooler
-				// Enabled system apps with launcher activity by default
-				WellKnownPackages.PACKAGE_GOOGLE_PLAY_STORE,			// Google Play Store to let user install apps directly within
+				// Enabled system apps with launcher activity by default.
+				// Play Store is deliberately NOT critical (fork change): dual-space users who install
+				// in-company APKs only need it in the main space, so it can be paused/removed inside the space.
 				"com.android.providers.downloads.ui",	// Downloads
 			// Essential Google packages
 			"com.google.android.gsf",				// Google services framework
