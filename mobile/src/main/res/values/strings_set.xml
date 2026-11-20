@@ -48,7 +48,6 @@
     <string name="lz_set_delete_space_summary">Permanently removes the dual space and all clone data inside it</string>
     <string name="lz_set_export_logs_title">Export diagnostics</string>
     <string name="lz_set_export_logs_summary">Includes logs and device status, without file contents</string>
-    <string name="lz_trim_title">Space trim</string>
     <string name="lz_trim_intro">The two switches are independent, matching Android two platform switches:
 · Hide = not listed or shown in the space, but it may still run in the background
 · Suspend = cannot run at all (the system blocks every component), yet it can stay listed

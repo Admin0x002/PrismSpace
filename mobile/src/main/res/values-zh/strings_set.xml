@@ -48,7 +48,6 @@
     <string name="lz_set_delete_space_summary">永久删除双开空间及其中所有分身数据</string>
     <string name="lz_set_export_logs_title">导出诊断信息</string>
     <string name="lz_set_export_logs_summary">包含运行日志和设备状态，不包含文件内容</string>
-    <string name="lz_trim_title">空间精简</string>
     <string name="lz_trim_intro">两个开关互相独立，对应 Android 的两个平台开关：
 · 隐藏 = 不出现在空间的桌面/列表里，但仍可能在后台运行
 · 挂起 = 完全不能运行（所有组件被系统阻止），但仍可出现在列表里
