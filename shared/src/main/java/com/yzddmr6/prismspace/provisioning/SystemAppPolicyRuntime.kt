@@ -24,8 +24,12 @@ enum class ConvergeReason { Provision, Repair, Incremental, Selection }
  * [HiddenOnly]: an unavailable target whose hide took effect while the platform refused the suspend
  * (HyperOS refuses it for contacts, which also carries the dialer [推测: protected role]). Hidden
  * already takes the app out of the space, so it counts as applied and is not retried every pass.
+ *
+ * [SuspendedOnly] is the mirror: DPM refuses to hide a package that shares its UID with another
+ * package (common for vendor services such as com.heytap.openid / com.oplus.pantanal.ums), but
+ * suspending it still stops every component. Counts as applied for the same reason.
  */
-enum class PackageOutcome { Ok, Unchanged, Absent, Failed, HiddenOnly }
+enum class PackageOutcome { Ok, Unchanged, Absent, Failed, HiddenOnly, SuspendedOnly }
 
 data class PackageResult(val target: SystemAppTarget, val outcome: PackageOutcome)
 
@@ -278,6 +282,7 @@ internal class SystemAppPolicyEngine(
         log("policy_summary u=$userId applied=$applied skippedUnchanged=${report.skippedUnchanged}" +
             " absent=${report.count(PackageOutcome.Absent)} failed=${report.count(PackageOutcome.Failed)}" +
             " hiddenOnly=${report.count(PackageOutcome.HiddenOnly)}" +
+            " suspendedOnly=${report.count(PackageOutcome.SuspendedOnly)}" +
             " ms=${(clock() - started).coerceAtLeast(0)}")
         return report
     }
@@ -292,8 +297,14 @@ internal class SystemAppPolicyEngine(
             log("policy_step_error pkg=${plan.pkg} exception=${e.javaClass.simpleName}")
             PackageOutcome.Failed
         }
-        val outcome = if (attempted == PackageOutcome.Failed && target == TargetState.UNAVAILABLE &&
-                safeState(plan.pkg)?.let { it.installed && it.hidden } == true) PackageOutcome.HiddenOnly else attempted
+        val state = if (attempted == PackageOutcome.Failed) safeState(plan.pkg) else null
+        val outcome = when {
+            attempted != PackageOutcome.Failed -> attempted
+            target != TargetState.UNAVAILABLE -> attempted
+            state?.let { it.installed && it.hidden } == true -> PackageOutcome.HiddenOnly
+            state?.let { it.installed && it.suspended } == true -> PackageOutcome.SuspendedOnly
+            else -> attempted
+        }
         val from = plan.from?.let { "${it.installed.bit()},${it.hidden.bit()},${it.suspended.bit()}" } ?: "-"
         val result = when (outcome) {
             PackageOutcome.Ok, PackageOutcome.Unchanged -> "ok"
@@ -320,6 +331,7 @@ internal class SystemAppPolicyEngine(
 
     /** @return null when every step succeeded, otherwise the terminal outcome. */
     private fun runSteps(pkg: String, steps: List<SystemAppStep>, executed: MutableList<SystemAppStep>): PackageOutcome? {
+        var hideRefused = false
         for (step in steps) {
             executed += step
             val ok = when (step) {
@@ -329,9 +341,14 @@ internal class SystemAppPolicyEngine(
                 SystemAppStep.Unsuspend -> port.setSuspended(pkg, false)
                 SystemAppStep.Suspend -> port.setSuspended(pkg, true)
             }
-            if (!ok) return PackageOutcome.Failed
+            if (!ok) {
+                // Shared-UID packages cannot be hidden; suspension alone still stops them, so keep
+                // going instead of giving up before the suspend step runs.
+                if (step == SystemAppStep.Hide && SystemAppStep.Suspend in steps) { hideRefused = true; continue }
+                return PackageOutcome.Failed
+            }
         }
-        return null
+        return if (hideRefused) PackageOutcome.Failed else null
     }
 
     private fun safeState(pkg: String): PackageState? = try { port.state(pkg) }
