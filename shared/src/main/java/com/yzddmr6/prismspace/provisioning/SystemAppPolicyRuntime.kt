@@ -310,6 +310,7 @@ internal class SystemAppPolicyEngine(
             PackageOutcome.Ok, PackageOutcome.Unchanged -> "ok"
             PackageOutcome.Absent -> "absent"
             PackageOutcome.HiddenOnly -> "hidden_only"
+            PackageOutcome.SuspendedOnly -> "suspended_only"
             PackageOutcome.Failed -> "failed:${executed.lastOrNull() ?: plan.steps.first()}"
         }
         if (!(quiet && outcome == PackageOutcome.Absent))
