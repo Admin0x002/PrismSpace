@@ -124,8 +124,7 @@ data class ApplySpaceGovernance(val policies: Map<String, Boolean>) : ProfileCom
     override fun decodeResult(src: Bundle): SpaceGovernanceReport = src.requireSystemAppResult()
 }
 
-@Parcelize
-data class QuerySpaceGovernance : ProfileCommand<SpaceGovernanceReport> {
+data object QuerySpaceGovernance : ProfileCommand<SpaceGovernanceReport> {
     override val id get() = "governance.query"
     override fun encodeResult(result: SpaceGovernanceReport, out: Bundle) = out.putParcelable(RESULT, result)
     override fun decodeResult(src: Bundle): SpaceGovernanceReport = src.requireSystemAppResult()
