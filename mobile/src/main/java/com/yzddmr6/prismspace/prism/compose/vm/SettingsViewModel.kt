@@ -708,7 +708,7 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
             _uiState.value = _uiState.value?.copy(
                 overviewLine = str(
                     R.string.lz_set_overview_line,
-                    snapshot.packageCount, processes, size ?: str(R.string.lz_set_overview_unknown),
+                    processes, size ?: str(R.string.lz_set_overview_unknown),
                 ),
             )
         }

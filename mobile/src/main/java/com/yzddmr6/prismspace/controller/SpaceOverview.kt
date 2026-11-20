@@ -2,7 +2,6 @@ package com.yzddmr6.prismspace.controller
 
 import android.app.usage.UsageStatsManager
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.WorkerThread
 import com.yzddmr6.prismspace.analytics.DiagnosticLog
@@ -20,8 +19,11 @@ import com.yzddmr6.prismspace.prism.compose.space.resolvePrivilegedShell
 object SpaceOverview {
 
     data class Snapshot(
-        val packageCount: Int,
-        val userAppCount: Int,
+        /**
+         * Deliberately no package count: `getInstalledPackages` reports the *parent* user's packages,
+         * and an app cannot enumerate another user's, so any such number would describe the wrong
+         * space. The app screen lists what is actually inside the space.
+         */
         /** Bytes under the profile's data dir, as reported by `du`; null without a privileged shell. */
         val dataBytes: Long?,
         val processCount: Int?,
@@ -31,19 +33,9 @@ object SpaceOverview {
 
     @WorkerThread
     suspend fun collect(context: Context, userId: Int): Snapshot {
-        val packages = runCatching {
-            context.packageManager.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES)
-        }.getOrDefault(emptyList())
-        // The caller is the parent space, so it can only count what it can see; the real per-space
-        // counts come from the profile over the bridge for the app screen. Storage and processes do
-        // need the privileged shell either way.
         val processes = runCatching { ProfileProcessInspector.inspect(context, userId) }.getOrNull()
         val rows = (processes as? ProfileProcessInspector.Result.Ok)?.rows.orEmpty()
         return Snapshot(
-            packageCount = packages.size,
-            userAppCount = packages.count { it.applicationInfo?.let { info ->
-                (info.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) == 0
-            } == true },
             dataBytes = profileDataBytes(context, userId),
             processCount = rows.size.takeIf { processes is ProfileProcessInspector.Result.Ok },
             runningApps = rows.take(MAX_RUNNING).map { it.name },

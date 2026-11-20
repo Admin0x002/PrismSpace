@@ -88,7 +88,7 @@
     <string name="lz_set_governance_refused">系统拒绝了：%1$s</string>
     <string name="lz_set_governance_error">应用失败，请确认双开空间正在运行</string>
     <string name="lz_set_overview_title">空间概况</string>
-    <string name="lz_set_overview_line">%1$d 个已安装包 · %2$s 个运行中进程 · 数据 %3$s</string>
+    <string name="lz_set_overview_line">%1$s 个运行中进程 · 数据占用 %2$s</string>
     <string name="lz_set_overview_unknown">未知</string>
     <string name="lz_set_overview_no_privilege">需 root/Shizuku</string>
     <string name="lz_set_backup_title">导出配置备份</string>

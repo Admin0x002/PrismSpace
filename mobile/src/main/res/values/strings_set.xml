@@ -88,7 +88,7 @@ Both on means invisible and unusable. This hides and suspends, it does not unins
     <string name="lz_set_governance_refused">The system refused: %1$s</string>
     <string name="lz_set_governance_error">Applying failed. Check that the dual space is running.</string>
     <string name="lz_set_overview_title">Space overview</string>
-    <string name="lz_set_overview_line">%1$d installed packages · %2$s running processes · %3$s of data</string>
+    <string name="lz_set_overview_line">%1$s running processes · %2$s of data</string>
     <string name="lz_set_overview_unknown">unknown</string>
     <string name="lz_set_overview_no_privilege">needs root/Shizuku</string>
     <string name="lz_set_backup_title">Export config backup</string>
