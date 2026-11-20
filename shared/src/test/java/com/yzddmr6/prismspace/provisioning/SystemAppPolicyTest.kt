@@ -31,6 +31,30 @@ class SystemAppPolicyTest {
         blocked: Set<String> = emptySet(),
     ) = PolicyInputs(defaults, critical, exempt, overrides, facts, blocked)
 
+    @Test fun splitQuadrantsAreSelectablePerDimension() {
+        // Hide and suspend are independent platform switches: the space screen can keep an app
+        // listed but unable to run, or out of the list while still allowed to work in background.
+        assertEquals(
+            TargetState.HIDDEN_ONLY,
+            SystemAppPolicy.evaluate(inputs(
+                overrides = mapOf("h" to SystemAppOverride.HiddenOnly),
+                facts = listOf(fact("h")),
+            ))["h"],
+        )
+        assertEquals(
+            TargetState.SUSPENDED_ONLY,
+            SystemAppPolicy.evaluate(inputs(
+                overrides = mapOf("s" to SystemAppOverride.SuspendedOnly),
+                facts = listOf(fact("s")),
+            ))["s"],
+        )
+        // The persistence round-trip keeps all four values apart.
+        assertEquals(SystemAppTarget.Hidden, TargetState.HIDDEN_ONLY.kind())
+        assertEquals(SystemAppTarget.Suspended, TargetState.SUSPENDED_ONLY.kind())
+        assertEquals(TargetState.HIDDEN_ONLY, SystemAppTarget.Hidden.state())
+        assertEquals(TargetState.SUSPENDED_ONLY, SystemAppTarget.Suspended.state())
+    }
+
     @Test fun blockedVendorServicesStayUnavailable() {
         // The .qms crash loop is caused by one of these: keeping the package hidden + suspended in
         // the space is the only way an app-level policy can stop its components from starting.

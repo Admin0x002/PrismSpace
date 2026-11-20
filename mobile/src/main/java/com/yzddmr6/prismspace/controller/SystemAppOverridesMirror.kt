@@ -20,9 +20,12 @@ import com.yzddmr6.prismspace.bridge.SystemAppOverrideChange
 object SystemAppOverridesMirror {
     private const val FILE = "system_app_overrides_mirror"
     private const val KEY_USER_ID = "profile_user_id"
-    private const val KEY_ON = "overrides_on"
-    private const val KEY_OFF = "overrides_off"
     private const val TAG = "Prism.OverridesMirror"
+
+    /** Recorded choice per package; every [SystemAppChoice] except Clear has its own bucket. */
+    private fun bucketKey(choice: SystemAppChoice) = "overrides_${choice.name}"
+
+    private fun readableChoices() = SystemAppChoice.values().filterNot { it == SystemAppChoice.Clear }
 
     /** Records the changes the profile accepted. Call after a successful apply. */
     fun record(context: Context, userId: Int, changes: List<SystemAppOverrideChange>) {
@@ -34,20 +37,17 @@ object SystemAppOverridesMirror {
             DiagnosticLog.i(TAG, "mirror reset: user $userId replaces ${prefs.getInt(KEY_USER_ID, -1)}")
             prefs.edit().clear().putInt(KEY_USER_ID, userId).commit()
         }
-        val on = prefs.getStringSet(KEY_ON, emptySet()).orEmpty().toMutableSet()
-        val off = prefs.getStringSet(KEY_OFF, emptySet()).orEmpty().toMutableSet()
+        val buckets = readableChoices().associateWith { choice ->
+            prefs.getStringSet(bucketKey(choice), emptySet()).orEmpty().toMutableSet()
+        }.toMutableMap()
         changes.forEach { change ->
-            when (change.choice) {
-                SystemAppChoice.Enabled -> { off.remove(change.pkg); on.add(change.pkg) }
-                SystemAppChoice.Disabled -> { on.remove(change.pkg); off.add(change.pkg) }
-                SystemAppChoice.Clear -> { on.remove(change.pkg); off.remove(change.pkg) }
-            }
+            // A package belongs to exactly one bucket: moving it means leaving every other.
+            buckets.values.forEach { it.remove(change.pkg) }
+            if (change.choice != SystemAppChoice.Clear) buckets.getValue(change.choice).add(change.pkg)
         }
-        prefs.edit()
-            .putInt(KEY_USER_ID, userId)
-            .putStringSet(KEY_ON, on)
-            .putStringSet(KEY_OFF, off)
-            .commit()
+        val editor = prefs.edit().putInt(KEY_USER_ID, userId)
+        buckets.forEach { (choice, set) -> editor.putStringSet(bucketKey(choice), set) }
+        editor.commit()
     }
 
     /**
@@ -57,15 +57,13 @@ object SystemAppOverridesMirror {
     fun takePendingRestore(context: Context, userId: Int): List<SystemAppOverrideChange>? {
         val prefs = context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
         val mirroredUser = prefs.getInt(KEY_USER_ID, -1)
-        val on = prefs.getStringSet(KEY_ON, emptySet()).orEmpty()
-        val off = prefs.getStringSet(KEY_OFF, emptySet()).orEmpty()
-        if (on.isEmpty() && off.isEmpty()) return null
-        if (mirroredUser == userId) return null      // same space: its own state is authoritative
-        DiagnosticLog.i(TAG, "restoring ${on.size + off.size} overrides into user $userId (mirrored for $mirroredUser)")
-        return buildList {
-            on.forEach { add(SystemAppOverrideChange(it, SystemAppChoice.Enabled)) }
-            off.forEach { add(SystemAppOverrideChange(it, SystemAppChoice.Disabled)) }
+        val recorded = readableChoices().flatMap { choice ->
+            prefs.getStringSet(bucketKey(choice), emptySet()).orEmpty().map { it to choice }
         }
+        if (recorded.isEmpty()) return null
+        if (mirroredUser == userId) return null      // same space: its own state is authoritative
+        DiagnosticLog.i(TAG, "restoring ${recorded.size} overrides into user $userId (mirrored for $mirroredUser)")
+        return recorded.map { (pkg, choice) -> SystemAppOverrideChange(pkg, choice) }
     }
 
     /** Marks the mirror as belonging to [userId] after a successful restore. */

@@ -66,7 +66,9 @@ fun needsPolicySeeding(provisionState: Int, storedStatus: SelectionStatus?): Boo
 
 /** True when [state] already satisfies [target]. */
 fun PackageState?.satisfies(target: TargetState): Boolean = when {
-    // An uninstalled package is already "removed": enabling is the only target it can miss.
-    this == null || !installed -> target == TargetState.AVAILABLE || target == TargetState.UNAVAILABLE
+    // Making a package available needs it installed with both switches off.
+    target == TargetState.AVAILABLE -> this != null && installed && !hidden && !suspended
+    // An uninstalled package is already "removed": nothing to hide or suspend.
+    this == null || !installed -> true
     else -> hidden == target.hidden && suspended == target.suspended
 }
