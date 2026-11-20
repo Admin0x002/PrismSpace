@@ -7,7 +7,7 @@ import android.os.Build
 import androidx.annotation.WorkerThread
 import com.yzddmr6.prismspace.analytics.DiagnosticLog
 import com.yzddmr6.prismspace.prism.compose.space.ProfileProcessInspector
-import java.util.concurrent.TimeUnit
+import com.yzddmr6.prismspace.prism.compose.space.resolvePrivilegedShell
 
 /**
  * 轻量只读概览: counts and sizes, nothing about what the user did with which app.
@@ -30,7 +30,7 @@ object SpaceOverview {
     )
 
     @WorkerThread
-    fun collect(context: Context, userId: Int): Snapshot {
+    suspend fun collect(context: Context, userId: Int): Snapshot {
         val packages = runCatching {
             context.packageManager.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES)
         }.getOrDefault(emptyList())
@@ -76,7 +76,7 @@ object SpaceOverview {
     }
 
     fun formatBytes(bytes: Long?): String? = bytes?.let {
-        val mb = TimeUnit.BYTES.toMegabytes(it)
+        val mb = it / (1024L * 1024L)
         if (mb >= 1024) "%.1f GB".format(mb / 1024.0) else "$mb MB"
     }
 
