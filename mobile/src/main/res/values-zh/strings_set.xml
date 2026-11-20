@@ -87,6 +87,14 @@
     <string name="lz_set_governance_applied">已应用</string>
     <string name="lz_set_governance_refused">系统拒绝了：%1$s</string>
     <string name="lz_set_governance_error">应用失败，请确认双开空间正在运行</string>
+    <string name="lz_set_overview_title">空间概况</string>
+    <string name="lz_set_overview_line">%1$d 个已安装包 · %2$s 个运行中进程 · 数据 %3$s</string>
+    <string name="lz_set_overview_unknown">未知</string>
+    <string name="lz_set_overview_no_privilege">需 root/Shizuku</string>
+    <string name="lz_set_backup_title">导出配置备份</string>
+    <string name="lz_set_backup_summary">导出你对空间的选择（应用隐藏/挂起、隔离策略），重建空间后自动恢复；不含应用数据</string>
+    <string name="lz_set_backup_subject">PrismSpace 空间配置备份</string>
+    <string name="lz_set_backup_failed">无法打开分享面板</string>
     <string name="lz_set_about_title">关于 PrismSpace</string>
     <string name="lz_set_about_summary">项目介绍、版本与开源信息</string>
     <string name="lz_set_cancel">取消</string>

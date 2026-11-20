@@ -15,6 +15,8 @@ import com.yzddmr6.prismspace.bridge.BridgeTargets
 import com.yzddmr6.prismspace.controller.ClonePreparationStore
 import com.yzddmr6.prismspace.controller.PrismAppControl
 import com.yzddmr6.prismspace.controller.SpaceGovernanceClient
+import com.yzddmr6.prismspace.controller.SpaceConfigBackup
+import com.yzddmr6.prismspace.controller.SpaceOverview
 import com.yzddmr6.prismspace.prism.compose.space.countsAsUserClone
 import com.yzddmr6.prismspace.mobile.R
 import com.yzddmr6.prismspace.prism.compose.component.PrismLevel
@@ -101,6 +103,8 @@ data class SettingsUiModel(
     val spaceActionEnabled: Boolean = true,
     // Profiles with our package that are neither provisioned nor the primary (diagnostic row only).
     val surplusProfileIds: List<Int> = emptyList(),
+    /** 空间占用概览 one-liner (counts + storage + processes). */
+    val overviewLine: String? = null,
     /** 跨空间隔离策略: effective state per policy name, read from the profile. */
     val governance: Map<String, Boolean> = emptyMap(),
     val governanceRefused: List<String> = emptyList(),
@@ -691,6 +695,42 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         DiagnosticLog.i(TAG, "surplus profile removal guidance users=$ids opened=${activity != null}")
         activity ?: return
         PrismSetup.promptManualRemoval(activity, R.string.lz_set_surplus_profiles_removal_message)
+    }
+
+    /** 空间占用概览: counts + storage + running process count (privileged where required). */
+    fun refreshOverview(context: Context) {
+        viewModelScope.launch {
+            val userId = Users.profile?.toId() ?: return@launch
+            val snapshot = withContext(Dispatchers.IO) { SpaceOverview.collect(context.applicationContext, userId) }
+            val size = SpaceOverview.formatBytes(snapshot.dataBytes)
+            val processes = snapshot.processCount?.toString()
+                ?: str(R.string.lz_set_overview_no_privilege)
+            _uiState.value = _uiState.value?.copy(
+                overviewLine = str(
+                    R.string.lz_set_overview_line,
+                    snapshot.packageCount, processes, size ?: str(R.string.lz_set_overview_unknown),
+                ),
+            )
+        }
+    }
+
+    /** 配置备份: shares the JSON of the user's own choices. */
+    fun exportConfig(context: Context) {
+        viewModelScope.launch {
+            val json = withContext(Dispatchers.IO) { SpaceConfigBackup.export(context.applicationContext) }
+            val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                type = "application/json"
+                putExtra(android.content.Intent.EXTRA_TEXT, json)
+                putExtra(android.content.Intent.EXTRA_SUBJECT, str(R.string.lz_set_backup_subject))
+            }
+            runCatching {
+                context.startActivity(
+                    android.content.Intent.createChooser(intent, str(R.string.lz_set_backup_title))
+                        .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }.onFailure { setFeedback(str(R.string.lz_set_backup_failed), isError = true) }
+            DiagnosticLog.i(TAG, "config export shared")
+        }
     }
 
     fun exportLogs(context: Context) {

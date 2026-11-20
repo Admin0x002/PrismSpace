@@ -83,6 +83,7 @@ fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
 
     LaunchedEffect(Unit) { vm.refreshCapabilities() }
     LaunchedEffect(Unit) { vm.refreshGovernance(context) }
+    LaunchedEffect(Unit) { vm.refreshOverview(context) }
     LaunchedEffect(Unit) {
         AppLaunchSignals.activateSpace.collect { vm.repairSpace(context, activationOnly = true) }
     }
@@ -205,6 +206,13 @@ fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
                             onClick = onOpenSpaceTrim,
                         )
                     }
+                    state.overviewLine?.let {
+                        StatusRow(
+                            title = stringResource(R.string.lz_set_overview_title),
+                            summary = it,
+                            leadingIcon = PrismIcons.Grid,
+                        )
+                    }
                     // Diagnostic only: surplus profiles are never targets and never removed in-app.
                     if (state.surplusProfileIds.isNotEmpty()) {
                         ActionRow(
@@ -286,6 +294,13 @@ fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
                     summary = stringResource(R.string.lz_set_export_logs_summary),
                     leadingIcon = Icons.Outlined.IosShare,
                     onClick = { vm.exportLogs(context) },
+                )
+                // 配置备份: only the user's own choices; app data is out of scope.
+                ActionRow(
+                    title = stringResource(R.string.lz_set_backup_title),
+                    summary = stringResource(R.string.lz_set_backup_summary),
+                    leadingIcon = PrismIcons.File,
+                    onClick = { vm.exportConfig(context) },
                 )
                 NavRow(
                     title = stringResource(R.string.lz_set_about_title),
