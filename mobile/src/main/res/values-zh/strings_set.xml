@@ -95,6 +95,10 @@
     <string name="lz_set_backup_summary">导出你对空间的选择（应用隐藏/挂起、隔离策略），重建空间后自动恢复；不含应用数据</string>
     <string name="lz_set_backup_subject">PrismSpace 空间配置备份</string>
     <string name="lz_set_backup_failed">无法打开分享面板</string>
+    <string name="lz_set_restore_title">导入配置备份</string>
+    <string name="lz_set_restore_summary">从备份文件恢复你的空间选择（下次空间启动时生效）</string>
+    <string name="lz_set_restore_ok">已导入 %1$d 项选择，将在空间下次启动时应用</string>
+    <string name="lz_set_restore_failed">无法读取该文件（不是有效的 PrismSpace 配置备份）</string>
     <string name="lz_set_about_title">关于 PrismSpace</string>
     <string name="lz_set_about_summary">项目介绍、版本与开源信息</string>
     <string name="lz_set_cancel">取消</string>

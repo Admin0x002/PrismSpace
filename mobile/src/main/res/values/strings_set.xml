@@ -95,6 +95,10 @@ Both on means invisible and unusable. This hides and suspends, it does not unins
     <string name="lz_set_backup_summary">Exports your space choices (app hide/suspend, isolation policies) and restores them into a rebuilt space; app data is not included</string>
     <string name="lz_set_backup_subject">PrismSpace space config backup</string>
     <string name="lz_set_backup_failed">Could not open the share sheet</string>
+    <string name="lz_set_restore_title">Import config backup</string>
+    <string name="lz_set_restore_summary">Restore your space choices from a backup file (applied on the next space start)</string>
+    <string name="lz_set_restore_ok">Imported %1$d choices; they apply the next time the space starts</string>
+    <string name="lz_set_restore_failed">Could not read that file (not a valid PrismSpace config backup)</string>
     <string name="lz_set_about_title">About PrismSpace</string>
     <string name="lz_set_about_summary">Project, version and open-source information</string>
     <string name="lz_set_cancel">Cancel</string>

@@ -733,6 +733,28 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * 配置恢复: reads a previously exported document and queues its overrides for the next space
+     * start. Returns how many were queued so the caller can report it.
+     */
+    fun importConfig(context: Context, uri: android.net.Uri) {
+        viewModelScope.launch {
+            val count = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openInputStream(uri)?.use { stream ->
+                        SpaceConfigBackup.import(context.applicationContext, stream.reader().readText())
+                    } ?: -1
+                }.getOrDefault(-1)
+            }
+            DiagnosticLog.i(TAG, "config import count=$count")
+            setFeedback(
+                if (count >= 0) str(R.string.lz_set_restore_ok, count)
+                else str(R.string.lz_set_restore_failed),
+                isError = count < 0,
+            )
+        }
+    }
+
     fun exportLogs(context: Context) {
         viewModelScope.launch {
             setFeedback(str(R.string.lz_setvm_sharing_report), isError = false)

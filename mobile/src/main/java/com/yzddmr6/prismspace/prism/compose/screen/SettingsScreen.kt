@@ -297,11 +297,20 @@ fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
                     onClick = { vm.exportLogs(context) },
                 )
                 // 配置备份: only the user's own choices; app data is out of scope.
+                val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+                ) { uri -> uri?.let { vm.importConfig(context, it) } }
                 ActionRow(
                     title = stringResource(R.string.lz_set_backup_title),
                     summary = stringResource(R.string.lz_set_backup_summary),
                     leadingIcon = PrismIcons.File,
                     onClick = { vm.exportConfig(context) },
+                )
+                ActionRow(
+                    title = stringResource(R.string.lz_set_restore_title),
+                    summary = stringResource(R.string.lz_set_restore_summary),
+                    leadingIcon = PrismIcons.Refresh,
+                    onClick = { importLauncher.launch(arrayOf("application/json", "text/plain", "*/*")) },
                 )
                 NavRow(
                     title = stringResource(R.string.lz_set_about_title),
