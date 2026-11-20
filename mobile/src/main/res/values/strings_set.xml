@@ -49,7 +49,9 @@
     <string name="lz_set_export_logs_title">Export diagnostics</string>
     <string name="lz_set_export_logs_summary">Includes logs and device status, without file contents</string>
     <string name="lz_trim_title">Space trim</string>
-    <string name="lz_trim_intro">Checked apps are hidden and suspended inside the dual space: data stays, nothing runs in the background, and unchecking restores them. Critical system packages are not listed; an app that is already running may keep its process until the space starts again.</string>
+    <string name="lz_trim_intro">Checked apps are hidden and suspended inside the dual space: data stays, nothing runs in the background, and unchecking restores them. Critical system packages are not listed; an app that is already running may keep its process until the space starts again.
+
+Note: this hides and suspends, it does not uninstall — a preinstalled system app cannot be removed from the space, but a suspended one never runs.</string>
     <string name="lz_trim_search">Search app or package</string>
     <string name="lz_trim_save">Apply changes</string>
     <string name="lz_trim_close">Back</string>

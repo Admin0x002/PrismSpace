@@ -49,7 +49,9 @@
     <string name="lz_set_export_logs_title">导出诊断信息</string>
     <string name="lz_set_export_logs_summary">包含运行日志和设备状态，不包含文件内容</string>
     <string name="lz_trim_title">空间精简</string>
-    <string name="lz_trim_intro">勾选的应用会在双开空间里被隐藏并挂起：数据保留、不占后台，取消勾选即可恢复。系统关键应用不在列表里；已经在运行的应用可能要等空间下次启动时才彻底退出。</string>
+    <string name="lz_trim_intro">勾选的应用会在双开空间里被隐藏并挂起：数据保留、不占后台，取消勾选即可恢复。系统关键应用不在列表里；已经在运行的应用可能要等空间下次启动时才彻底退出。
+
+注意：这里是「隐藏并挂起」，不是卸载——预装系统应用无法从空间删除，但挂起后不会再运行。</string>
     <string name="lz_trim_search">搜索应用或包名</string>
     <string name="lz_trim_save">应用更改</string>
     <string name="lz_trim_close">返回</string>

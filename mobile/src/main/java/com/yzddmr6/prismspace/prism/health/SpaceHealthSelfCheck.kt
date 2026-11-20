@@ -72,6 +72,11 @@ class SpaceHealthSelfCheck : BroadcastReceiver() {
             }
             is SpaceState.Inactive -> notify(context, R.string.notification_space_health_paused, R.string.notification_space_health_paused_body)
             is SpaceState.BridgeDown -> notify(context, R.string.notification_space_health_bridge, R.string.notification_space_health_bridge_body)
+            is SpaceState.Healthy -> {
+                cancel(context)
+                // A rebuilt space starts from the defaults; replay what the parent space remembers.
+                userId?.let { com.yzddmr6.prismspace.controller.SystemAppSelectionClient.restoreMirrorIfNeeded(context, it) }
+            }
             else -> cancel(context)
         }
     }

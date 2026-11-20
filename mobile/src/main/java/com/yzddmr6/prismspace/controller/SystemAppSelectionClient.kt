@@ -118,7 +118,29 @@ internal object SystemAppSelectionClient {
             ignored += report.ignoredCritical
         }
         fun with(kind: Int) = merged.filterValues { it == kind }.keys.toList()
+        // The profile is the source of truth, but it dies with the space. Keep the parent-side
+        // mirror in sync so a rebuilt space gets its choices back.
+        SystemAppOverridesMirror.record(context, userId, changes.filterNot { it.pkg in ignored })
         return ProfileBridgeResult.Value(SystemAppApplyReportDto(with(AVAILABLE), with(UNAVAILABLE), with(ABSENT), with(FAILED), ignored.toList()))
+    }
+
+    /**
+     * Replays the parent-side mirror into a space the mirror has not seen (a rebuilt space), so a
+     * rebuild no longer throws the user's choices away.
+     * @return how many overrides were replayed; 0 when there was nothing to restore.
+     */
+    @WorkerThread
+    fun restoreMirrorIfNeeded(context: Context, userId: Int): Int {
+        val changes = SystemAppOverridesMirror.takePendingRestore(context, userId) ?: return 0
+        val result = apply(context, userId, changes, finish = null)
+        return if (result is ProfileBridgeResult.Value) {
+            SystemAppOverridesMirror.confirmRestored(context, userId)
+            DiagnosticLog.i(TAG, "mirror restored user=$userId changes=${changes.size}")
+            changes.size
+        } else {
+            DiagnosticLog.w(TAG, "mirror restore failed user=$userId result=${result.javaClass.simpleName}")
+            0
+        }
     }
 
     /** Single-package add/remove from the space page or the clone flow, then local bookkeeping. */
