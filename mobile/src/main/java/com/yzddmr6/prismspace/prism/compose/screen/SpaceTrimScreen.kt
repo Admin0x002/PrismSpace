@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -24,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -41,9 +43,9 @@ import com.yzddmr6.prismspace.prism.compose.theme.PrismSpacing
 import com.yzddmr6.prismspace.prism.compose.vm.SpaceTrimViewModel
 
 /**
- * 「空间精简」: every installed, non-critical system package of the dual space with a checkbox.
- * Checked = hidden + suspended inside the space (data stays, unchecking restores it). The fork's
- * default blocklist arrives checked; critical packages are not listed at all.
+ * 「空间应用」: what runs inside the space right now (privileged only) and, per package, whether it
+ * may be listed and whether it may run. The two switches are the platform's own hidden/suspended
+ * flags, so the tag always shows which of the four quadrants a row is in.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,6 +108,7 @@ fun SpaceTrimScreen(onBack: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = PrismSpacing.Sm),
             )
+            ProcessesCard(state = state.processes, onRefresh = vm::refreshProcesses)
             OutlinedTextField(
                 value = state.filter,
                 onValueChange = vm::setFilter,
@@ -124,43 +127,158 @@ fun SpaceTrimScreen(onBack: () -> Unit) {
                 Text(stringResource(R.string.lz_trim_loading), style = MaterialTheme.typography.bodyMedium)
             }
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                val rows = state.visible
-                items(rows, key = { it.pkg }) { row ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(enabled = !state.saving) { vm.toggle(row.pkg) }
-                            .heightIn(min = 56.dp)
-                            .padding(vertical = PrismSpacing.Xs),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                text = row.label,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Text(
-                                text = row.pkg,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                        if (row.inBlocklist) Text(
-                            text = stringResource(R.string.lz_trim_default_tag),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(end = PrismSpacing.Sm),
-                        )
-                        Checkbox(
-                            checked = row.checked,
-                            onCheckedChange = null,
-                            enabled = !state.saving,
-                        )
-                    }
+                items(state.visible, key = { it.pkg }) { row ->
+                    QuadrantRow(
+                        label = row.label,
+                        pkg = row.pkg,
+                        hidden = row.hidden,
+                        suspended = row.suspended,
+                        inBlocklist = row.inBlocklist,
+                        enabled = !state.saving,
+                        onToggleHidden = { vm.toggle(row.pkg, hidden = !row.hidden) },
+                        onToggleSuspended = { vm.toggle(row.pkg, suspended = !row.suspended) },
+                    )
                 }
             }
         }
     }
 }
+
+@Composable
+private fun ProcessesCard(state: SpaceTrimViewModel.Processes, onRefresh: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(PrismSpacing.Xs),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.lz_trim_processes_title),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = onRefresh) { Text(stringResource(R.string.lz_trim_processes_refresh)) }
+        }
+        when (state) {
+            SpaceTrimViewModel.Processes.Loading -> Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(PrismSpacing.Sm),
+            ) {
+                CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                Text(stringResource(R.string.lz_trim_loading), style = MaterialTheme.typography.bodySmall)
+            }
+            // No approximation is offered on purpose: an app cannot enumerate another user's
+            // processes, so the honest answer is "switch to a privileged transport".
+            SpaceTrimViewModel.Processes.NoPrivilege -> Text(
+                text = stringResource(R.string.lz_trim_processes_no_privilege),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            is SpaceTrimViewModel.Processes.Failed -> Text(
+                text = stringResource(R.string.lz_trim_processes_failed, state.detail),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+            is SpaceTrimViewModel.Processes.Loaded -> {
+                if (state.rows.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.lz_trim_processes_empty),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.lz_trim_processes_count, state.rows.size),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    state.rows.take(PROCESS_ROWS) .forEach { process ->
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp)) {
+                            Text(
+                                text = process.name,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.weight(1f),
+                            )
+                            Text(
+                                text = stringResource(R.string.lz_trim_processes_rss, process.rssKb / 1024),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.width(84.dp),
+                            )
+                        }
+                    }
+                    if (state.rows.size > PROCESS_ROWS) Text(
+                        text = stringResource(R.string.lz_trim_processes_more, state.rows.size - PROCESS_ROWS),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuadrantRow(
+    label: String,
+    pkg: String,
+    hidden: Boolean,
+    suspended: Boolean,
+    inBlocklist: Boolean,
+    enabled: Boolean,
+    onToggleHidden: () -> Unit,
+    onToggleSuspended: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 64.dp)
+            .padding(vertical = PrismSpacing.Xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (inBlocklist) Text(
+                    text = stringResource(R.string.lz_trim_default_tag),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = PrismSpacing.Sm),
+                )
+            }
+            Text(
+                text = pkg,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = stringResource(
+                    when {
+                        hidden && suspended -> R.string.lz_trim_tag_hidden_suspended
+                        hidden -> R.string.lz_trim_tag_hidden
+                        suspended -> R.string.lz_trim_tag_suspended
+                        else -> R.string.lz_trim_tag_normal
+                    }
+                ),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (hidden || suspended) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        // 隐藏 / 挂起: two independent platform switches, so two controls.
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(stringResource(R.string.lz_trim_hide), style = MaterialTheme.typography.labelSmall)
+            Checkbox(checked = hidden, onCheckedChange = { onToggleHidden() }, enabled = enabled)
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(stringResource(R.string.lz_trim_suspend), style = MaterialTheme.typography.labelSmall)
+            Checkbox(checked = suspended, onCheckedChange = { onToggleSuspended() }, enabled = enabled)
+        }
+    }
+}
+
+private const val PROCESS_ROWS = 8

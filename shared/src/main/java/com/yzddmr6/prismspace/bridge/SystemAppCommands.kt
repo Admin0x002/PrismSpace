@@ -54,8 +54,10 @@ data class SystemAppApplyReportDto(
 data class BlockableAppEntry(
     val pkg: String,
     val label: String,
-    /** The policy hides + suspends it inside the space right now. */
-    val checked: Boolean,
+    /** Hidden inside the space right now (absent from its app list). */
+    val hidden: Boolean,
+    /** Suspended inside the space right now (no component can start). */
+    val suspended: Boolean,
     /** Member of the fork's default blocklist. */
     val inBlocklist: Boolean,
 ) : Parcelable

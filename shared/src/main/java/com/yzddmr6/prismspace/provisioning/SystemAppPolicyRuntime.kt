@@ -33,7 +33,12 @@ enum class PackageOutcome { Ok, Unchanged, Absent, Failed, HiddenOnly, Suspended
 
 data class PackageResult(val target: SystemAppTarget, val outcome: PackageOutcome)
 
-internal data class BlockableAppFact(val pkg: String, val checked: Boolean, val inBlocklist: Boolean)
+internal data class BlockableAppFact(
+    val pkg: String,
+    val hidden: Boolean,
+    val suspended: Boolean,
+    val inBlocklist: Boolean,
+)
 
 internal data class BlockableAppPage(val entries: List<BlockableAppFact>, val hasMore: Boolean)
 
@@ -157,7 +162,8 @@ internal class SystemAppPolicyEngine(
         val entries = blockable.subList(start.toInt(), end).map { pkg ->
             BlockableAppFact(
                 pkg = pkg,
-                checked = targets[pkg]?.let { it.hidden || it.suspended } == true,
+                hidden = targets[pkg]?.hidden == true,
+                suspended = targets[pkg]?.suspended == true,
                 inBlocklist = pkg in SystemAppBlocklist.packages,
             )
         }
@@ -408,7 +414,8 @@ internal class SystemAppPolicyEngine(
                     val flags = PackageManager.MATCH_DISABLED_COMPONENTS or PackageManager.MATCH_UNINSTALLED_PACKAGES
                     pm.getApplicationLabel(pm.getApplicationInfo(fact.pkg, flags)).toString()
                 }.getOrDefault(fact.pkg),
-                checked = fact.checked,
+                hidden = fact.hidden,
+                suspended = fact.suspended,
                 inBlocklist = fact.inBlocklist,
             )
         }
