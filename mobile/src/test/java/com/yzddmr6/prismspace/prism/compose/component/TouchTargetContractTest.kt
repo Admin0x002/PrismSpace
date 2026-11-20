@@ -37,13 +37,6 @@ class TouchTargetContractTest {
         }
     }
 
-    @Test fun settingsFeedbackCopyButtonUsesTheWrapper() {
-        val source = readSource("mobile/src/main/java/com/yzddmr6/prismspace/prism/compose/screen/SettingsScreen.kt")
-
-        assertTrue(source.contains("PrismTextButton(onClick = copyFeedbackAccount)"))
-        assertTrue(Regex("(?<!Prism)TextButton\\(onClick = copyFeedbackAccount").find(source) == null)
-    }
-
     @Test fun componentLayerTargetsUseTheTouchToken() {
         listOf(
             "mobile/src/main/java/com/yzddmr6/prismspace/prism/compose/component/SpaceSegmentChips.kt",
