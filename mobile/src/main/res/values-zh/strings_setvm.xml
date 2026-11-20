@@ -40,6 +40,7 @@
     <string name="lz_setvm_space_already_ready">双开空间已正常，无需修复</string>
     <string name="lz_setvm_bridge_repairing">正在重新连接双开空间…</string>
     <string name="lz_setvm_bridge_repair_opened_profile">已打开双开空间，请在完成重连后返回 PrismSpace 重试。</string>
+    <string name="lz_setvm_confirm_work_profile_prompt">已请 Android 显示开启弹窗；请在弹窗里点「开启」，空间会自动恢复。</string>
     <string name="lz_setvm_space_paused_system_toggle">双开空间被 Android 暂停了（安静模式），普通应用无法直接取消。请在通知栏快捷设置里打开「工作应用」，或到系统设置里关掉该工作资料的暂停，空间会自动恢复。</string>
     <string name="lz_setvm_unlocking_space">正在请求 Android 解锁双开空间…</string>
     <string name="lz_setvm_space_unlocked">双开空间已解锁。</string>

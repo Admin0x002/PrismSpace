@@ -284,10 +284,10 @@ class Users : PseudoContentProvider() {
 				}
 		}
 
-		// Activation may land well after the old 15 s (a 19 s resume was observed here). Keep the
-		// wait short enough to stay a useful spinner: when Android's "工作应用" switch is what is
-		// holding the profile, no amount of waiting helps and the UI points at that switch instead.
-		private const val ACTIVATION_TIMEOUT: Long = 20_000
+		// Un-quieting shows Android's own "要开启工作资料吗?" dialog, so the wait must outlast a
+		// human reaction: the old 15 s expired while the dialog was still on screen and the resume
+		// was reported as a failure seconds before the profile actually came up.
+		private const val ACTIVATION_TIMEOUT: Long = 60_000
 		private const val ACTIVATION_POLL_MS: Long = 500
 
 		private var mDebugBuild = false

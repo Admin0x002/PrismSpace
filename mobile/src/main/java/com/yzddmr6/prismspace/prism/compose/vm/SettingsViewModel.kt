@@ -475,7 +475,9 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
                     SetupFlow.open(context)
                 }
 				is SpaceRecoveryPlan.Activate -> {
-					setFeedback(str(R.string.lz_setvm_repairing), isError = false)
+					// Android answers this with its own "要开启工作资料吗?" dialog; the user has to
+					// tap 开启, so say so instead of showing a spinner that outlives their reaction.
+					setFeedback(str(R.string.lz_setvm_confirm_work_profile_prompt), isError = false)
 					val profile = UserHandles.of(plan.userId)
 					val ok = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 						runCatching { Users.requestQuietModeDisabled(context, profile) }
