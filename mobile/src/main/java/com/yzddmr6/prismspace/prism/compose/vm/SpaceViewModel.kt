@@ -1154,7 +1154,12 @@ class SpaceViewModel(app: Application, private val savedState: SavedStateHandle)
         }
         val normal = apps.filter { app ->
             if (segment == SpaceSegment.Main) app.enabled else inputs.getValue(app.packageName).let { input ->
-                isDualNormalRow(input.system, app.shouldShowAsEnabled(), input.policyHidden, input.launchability!!)
+                isDualNormalRow(input.system, app.shouldShowAsEnabled(), input.policyHidden, input.launchability!!) &&
+                    // A system package hidden inside the space was taken out by the policy (the
+                    // preinstalled accessory app and friends). It belongs to 空间精简/系统应用, and
+                    // listing it here as a paused row only makes the space look like it contains
+                    // apps nobody chose. Suspended clones stay listed: pausing them is a user action.
+                    !(input.system && input.frozen)
             }
         }.map { inputs.getValue(it.packageName) }
         return SpaceApps(apps.associateBy { it.packageName }, normal, inputs.values.filter { it.system })
