@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.core.app.NotificationCompat
 import com.yzddmr6.prismspace.analytics.DiagnosticLog
 import com.yzddmr6.prismspace.mobile.R
 import com.yzddmr6.prismspace.notification.NotificationIds
@@ -93,7 +92,7 @@ class SpaceHealthSelfCheck : BroadcastReceiver() {
             setColor(context.getColor(com.yzddmr6.prismspace.shared.R.color.primary))
             setContentTitle(context.getString(title))
             setContentText(context.getString(body))
-            setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(body)))
+            setStyle(Notification.BigTextStyle().bigText(context.getString(body)))
             setContentIntent(PendingIntent.getActivity(context, 0, intent, flags))
             setAutoCancel(false)
             setOnlyAlertOnce(true)
