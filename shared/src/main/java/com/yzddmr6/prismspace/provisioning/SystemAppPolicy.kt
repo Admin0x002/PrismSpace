@@ -1,7 +1,18 @@
 package com.yzddmr6.prismspace.provisioning
 
-/** A user's explicit per-space choice for one system package. */
-enum class SystemAppOverride { Enabled, Disabled }
+/**
+ * A user's explicit per-space choice for one system package. The two middle values are the split
+ * hide/suspend quadrants the space screen can set independently.
+ */
+enum class SystemAppOverride { Enabled, Disabled, HiddenOnly, SuspendedOnly }
+
+/** Target a choice asks for; [SystemAppOverride.Disabled] keeps the provisioning "removed" semantics. */
+fun SystemAppOverride.target(): TargetState = when (this) {
+    SystemAppOverride.Enabled -> TargetState.AVAILABLE
+    SystemAppOverride.Disabled -> TargetState.UNAVAILABLE
+    SystemAppOverride.HiddenOnly -> TargetState.HIDDEN_ONLY
+    SystemAppOverride.SuspendedOnly -> TargetState.SUSPENDED_ONLY
+}
 
 /** Profile-side selection progress. Gates whether the built-in default set is in effect. */
 enum class SelectionStatus { Pending, Deferred, Confirmed }
@@ -33,16 +44,36 @@ data class PolicyInputs(
 data class TargetState(val enabled: Boolean, val hidden: Boolean, val suspended: Boolean) {
     companion object {
         val AVAILABLE = TargetState(enabled = true, hidden = false, suspended = false)
+        /** Not listed in the space, but its components may still run in the background. */
+        val HIDDEN_ONLY = TargetState(enabled = true, hidden = true, suspended = false)
+        /** Listed but completely unable to run: every component is blocked by the platform. */
+        val SUSPENDED_ONLY = TargetState(enabled = true, hidden = false, suspended = true)
         /** "Removed" semantics of managed-profile provisioning: hidden + suspended; enabled=false means "do not install". */
         val UNAVAILABLE = TargetState(enabled = false, hidden = true, suspended = true)
     }
 }
 
-/** Coarse persisted form of a [TargetState]. */
-enum class SystemAppTarget { Available, Unavailable }
+/**
+ * Persisted, user-facing form of a [TargetState]. Four quadrants rather than available/unavailable:
+ * hiding (listed or not) and suspending (able to run or not) are independent platform switches, and
+ * the space screen exposes both — a package can be kept visible yet unable to run, or out of the
+ * list while still serving background work.
+ */
+enum class SystemAppTarget { Available, Hidden, Suspended, Unavailable }
 
-fun TargetState.kind(): SystemAppTarget =
-    if (this == TargetState.AVAILABLE) SystemAppTarget.Available else SystemAppTarget.Unavailable
+fun TargetState.kind(): SystemAppTarget = when {
+    this == TargetState.HIDDEN_ONLY -> SystemAppTarget.Hidden
+    this == TargetState.SUSPENDED_ONLY -> SystemAppTarget.Suspended
+    this == TargetState.AVAILABLE -> SystemAppTarget.Available
+    else -> SystemAppTarget.Unavailable
+}
+
+fun SystemAppTarget.state(): TargetState = when (this) {
+    SystemAppTarget.Available -> TargetState.AVAILABLE
+    SystemAppTarget.Hidden -> TargetState.HIDDEN_ONLY
+    SystemAppTarget.Suspended -> TargetState.SUSPENDED_ONLY
+    SystemAppTarget.Unavailable -> TargetState.UNAVAILABLE
+}
 
 /**
  * The single source of the per-package target state of system apps in a dual space.
@@ -67,15 +98,15 @@ object SystemAppPolicy {
                 pkg in inputs.criticalSet -> TargetState.AVAILABLE                                      // R1
                 // Blocked vendor services: kept out of every space, installed here or not. A hidden +
                 // suspended package cannot start its components, so its crash loop ends with it.
-                // An explicit enable is the user unchecking the package on the disable screen, so it
+                // An explicit choice is the user overriding the default on the space screen, so it
                 // must win here — otherwise that screen could not undo a default.
                 pkg in inputs.blockedSet && inputs.overrides[pkg] != SystemAppOverride.Enabled ->
                     if (fact?.installed == true) TargetState.UNAVAILABLE else null                            // R1b
                 fact != null && !fact.isSystem -> null                                                  // R2
-                inputs.overrides[pkg] == SystemAppOverride.Disabled ->                                  // R3
-                    if (fact?.installed == true) TargetState.UNAVAILABLE else null
+                // An explicit choice wins over the IME exemption and the default set, and carries the
+                // exact quadrant the user asked for (hide and suspend are independent switches).
+                inputs.overrides[pkg] != null -> inputs.overrides.getValue(pkg).target()                 // R3
                 pkg in inputs.exemptSet -> null                                                         // R4
-                inputs.overrides[pkg] == SystemAppOverride.Enabled -> TargetState.AVAILABLE             // R5
                 pkg in inputs.defaultSet -> TargetState.AVAILABLE                                       // R6
                 fact != null && fact.isSystem && fact.hasLauncherEntry && fact.installed ->            // R7
                     TargetState.UNAVAILABLE

@@ -24,28 +24,47 @@ class SharedPrefsSystemAppPolicyPersistence(context: Context) : SystemAppPolicyP
             SelectionStatus.values().firstOrNull { it.name == name }
         }
         val overrides = LinkedHashMap<String, SystemAppOverride>()
-        prefs.getStringSet(KEY_OVERRIDES_ON, emptySet()).orEmpty().forEach { overrides[it] = SystemAppOverride.Enabled }
-        prefs.getStringSet(KEY_OVERRIDES_OFF, emptySet()).orEmpty().forEach { overrides[it] = SystemAppOverride.Disabled }
+        // Read every quadrant; a choice written by an older build still lands in its slot.
+        SystemAppOverride.values().forEach { choice ->
+            prefs.getStringSet(KEY_OVERRIDE_PREFIX + choice.name, emptySet()).orEmpty().forEach {
+                overrides[it] = choice
+            }
+        }
         val lastApplied = LinkedHashMap<String, SystemAppTarget>()
-        prefs.getStringSet(KEY_APPLIED_AVAILABLE, emptySet()).orEmpty().forEach { lastApplied[it] = SystemAppTarget.Available }
-        prefs.getStringSet(KEY_APPLIED_UNAVAILABLE, emptySet()).orEmpty().forEach { lastApplied[it] = SystemAppTarget.Unavailable }
+        SystemAppTarget.values().forEach { target ->
+            prefs.getStringSet(KEY_APPLIED_PREFIX + target.name, emptySet()).orEmpty().forEach {
+                lastApplied[it] = target
+            }
+        }
         return SystemAppPolicyState(status, overrides, lastApplied)
     }
 
-    override fun write(state: SystemAppPolicyState): Boolean = prefs.edit()
-        .putString(KEY_STATUS, state.status?.name)
-        .putStringSet(KEY_OVERRIDES_ON, state.overrides.filterValues { it == SystemAppOverride.Enabled }.keys.toSet())
-        .putStringSet(KEY_OVERRIDES_OFF, state.overrides.filterValues { it == SystemAppOverride.Disabled }.keys.toSet())
-        .putStringSet(KEY_APPLIED_AVAILABLE, state.lastApplied.filterValues { it == SystemAppTarget.Available }.keys.toSet())
-        .putStringSet(KEY_APPLIED_UNAVAILABLE, state.lastApplied.filterValues { it == SystemAppTarget.Unavailable }.keys.toSet())
-        .commit()
+    override fun write(state: SystemAppPolicyState): Boolean {
+        val editor = prefs.edit().putString(KEY_STATUS, state.status?.name)
+        SystemAppOverride.values().forEach { choice ->
+            editor.putStringSet(
+                KEY_OVERRIDE_PREFIX + choice.name,
+                state.overrides.filterValues { it == choice }.keys.toSet(),
+            )
+        }
+        SystemAppTarget.values().forEach { target ->
+            editor.putStringSet(
+                KEY_APPLIED_PREFIX + target.name,
+                state.lastApplied.filterValues { it == target }.keys.toSet(),
+            )
+        }
+        // Legacy keys from before the quadrants existed must not resurrect as overrides.
+        editor.remove(KEY_OVERRIDES_ON).remove(KEY_OVERRIDES_OFF)
+        return editor.commit()
+    }
 
     private companion object {
         const val FILE = "system_app_policy"
         const val KEY_STATUS = "status"
+        const val KEY_OVERRIDE_PREFIX = "override_"
+        const val KEY_APPLIED_PREFIX = "last_applied_"
+        // Legacy (pre-quadrant) keys, cleared on the next write.
         const val KEY_OVERRIDES_ON = "overrides_on"
         const val KEY_OVERRIDES_OFF = "overrides_off"
-        const val KEY_APPLIED_AVAILABLE = "last_applied_available"
-        const val KEY_APPLIED_UNAVAILABLE = "last_applied_unavailable"
     }
 }

@@ -18,16 +18,21 @@ data class PackagePlan(
  * packages. Unavailable: Hide → Suspend, both dimensions in one pass; nothing for a package that is
  * not installed (enabling it just to hide it would only add side effects).
  */
-fun stepsFor(target: TargetState, current: PackageState?): List<SystemAppStep> =
-    if (target == TargetState.AVAILABLE) buildList {
+/** Steps for one target, in the order that never leaves the package in a half-applied state. */
+fun stepsFor(target: TargetState, current: PackageState?): List<SystemAppStep> {
+    // A package that is not installed here is only ever enabled; hiding/suspending it is a no-op.
+    if (target != TargetState.AVAILABLE && (current == null || !current.installed)) return emptyList()
+    return buildList {
         if (current == null || !current.installed) add(SystemAppStep.Enable)
-        if (current?.hidden == true) add(SystemAppStep.Unhide)
-        if (current?.suspended == true) add(SystemAppStep.Unsuspend)
-    } else buildList {
-        if (current == null || !current.installed) return@buildList
-        if (!current.hidden) add(SystemAppStep.Hide)
-        if (!current.suspended) add(SystemAppStep.Suspend)
+        // Unhide before unsuspend: a package must be restoreable even if only one dimension is set.
+        if (target.hidden) {
+            if (current?.hidden == false) add(SystemAppStep.Hide)
+        } else if (current?.hidden == true) add(SystemAppStep.Unhide)
+        if (target.suspended) {
+            if (current?.suspended == false) add(SystemAppStep.Suspend)
+        } else if (current?.suspended == true) add(SystemAppStep.Unsuspend)
     }
+}
 
 /**
  * Packages whose state must be checked in this pass. Critical packages always converge. Any other
@@ -61,7 +66,7 @@ fun needsPolicySeeding(provisionState: Int, storedStatus: SelectionStatus?): Boo
 
 /** True when [state] already satisfies [target]. */
 fun PackageState?.satisfies(target: TargetState): Boolean = when {
-    target == TargetState.AVAILABLE -> this != null && installed && !hidden && !suspended
-    this == null || !installed -> true      // Unavailable: an uninstalled package is never forced in.
-    else -> hidden && suspended
+    // An uninstalled package is already "removed": enabling is the only target it can miss.
+    this == null || !installed -> target == TargetState.AVAILABLE || target == TargetState.UNAVAILABLE
+    else -> hidden == target.hidden && suspended == target.suspended
 }

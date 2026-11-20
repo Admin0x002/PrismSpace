@@ -109,7 +109,11 @@ fun commitSelection(
         }
         val storedChoice = when (candidate.override) {
             SystemAppOverride.Enabled -> SystemAppChoice.Enabled
-            SystemAppOverride.Disabled -> SystemAppChoice.Disabled
+            // The picker is the binary "in the space / not in the space" view: every restricted
+            // quadrant reads as not-in-the-space here, the space screen owns the split states.
+            SystemAppOverride.Disabled,
+            SystemAppOverride.HiddenOnly,
+            SystemAppOverride.SuspendedOnly -> SystemAppChoice.Disabled
             null -> SystemAppChoice.Clear
         }
         val untouched = preselected != null && desired == (candidate.pkg in preselected) && choice == storedChoice

@@ -93,6 +93,8 @@ internal class SystemAppPolicyEngine(
             when (change.choice) {
                 SystemAppChoice.Enabled -> overrides[change.pkg] = SystemAppOverride.Enabled
                 SystemAppChoice.Disabled -> overrides[change.pkg] = SystemAppOverride.Disabled
+                SystemAppChoice.HiddenOnly -> overrides[change.pkg] = SystemAppOverride.HiddenOnly
+                SystemAppChoice.SuspendedOnly -> overrides[change.pkg] = SystemAppOverride.SuspendedOnly
                 SystemAppChoice.Clear -> overrides.remove(change.pkg)
             }
         }
@@ -118,12 +120,16 @@ internal class SystemAppPolicyEngine(
                     SystemAppOverride.Disabled -> unavailable += pkg
                     // Enabled on a package the policy cannot manage (not a system package here).
                     SystemAppOverride.Enabled -> failed += pkg
-                    null -> Unit
+                    // A split quadrant on an absent package is a no-op, not a failure.
+                    SystemAppOverride.HiddenOnly, SystemAppOverride.SuspendedOnly, null -> Unit
                 }
                 result.outcome == PackageOutcome.Absent -> absent += pkg
                 result.outcome == PackageOutcome.Failed -> failed += pkg
                 result.target == SystemAppTarget.Available -> available += pkg
-                else -> unavailable += pkg
+                result.target == SystemAppTarget.Unavailable -> unavailable += pkg
+                // A split quadrant is neither: the package stays installed and listed-or-not per the
+                // user's own choice, so it must not be reported as a failure or as "removed".
+                else -> Unit
             }
         }
         return SystemAppApplyReportDto(available, unavailable, absent, failed, ignoredCritical)
@@ -151,7 +157,7 @@ internal class SystemAppPolicyEngine(
         val entries = blockable.subList(start.toInt(), end).map { pkg ->
             BlockableAppFact(
                 pkg = pkg,
-                checked = targets[pkg]?.kind() == SystemAppTarget.Unavailable,
+                checked = targets[pkg]?.let { it.hidden || it.suspended } == true,
                 inBlocklist = pkg in SystemAppBlocklist.packages,
             )
         }
@@ -196,10 +202,12 @@ internal class SystemAppPolicyEngine(
         val collected = facts(stored.overrides.keys + SystemAppDefaults.packages)
         val state = ensureInitialized(stored, collected, provisionState)
         val targets = evaluate(state, collected)
-        val hidden = targets.filterValues { it.kind() == SystemAppTarget.Unavailable }.keys
+        val hidden = targets.filterValues { it.hidden }.keys
         // R5/R6: available because of the user's selection (explicit or confirmed default). Critical
         // packages (R1) are infrastructure kept by the platform invariant, never a user's clone.
-        val enabled = targets.filter { (pkg, target) -> target.kind() == SystemAppTarget.Available && pkg !in collected.critical }.keys
+        val enabled = targets.filter { (pkg, target) ->
+            !target.hidden && !target.suspended && pkg !in collected.critical
+        }.keys
         return SystemAppListSnapshot(hidden, collected.enabledLauncherPackages, collected.entryActions, enabled)
     }
 
@@ -314,7 +322,7 @@ internal class SystemAppPolicyEngine(
             PackageOutcome.Failed -> "failed:${executed.lastOrNull() ?: plan.steps.first()}"
         }
         if (!(quiet && outcome == PackageOutcome.Absent))
-            log("policy_step pkg=${plan.pkg} target=${if (plan.target == SystemAppTarget.Available) "A" else "U"}" +
+            log("policy_step pkg=${plan.pkg} target=${plan.target.name.take(1)}" +
                 " from=$from steps=${executed.joinToString(",")} result=$result")
         return outcome
     }

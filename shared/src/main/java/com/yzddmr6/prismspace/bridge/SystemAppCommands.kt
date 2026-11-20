@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 /** Upper bound of override changes per [ApplySystemAppSelection]; callers chunk larger selections. */
 const val MAX_SYSTEM_APP_SELECTION_CHANGES = 128
 
-enum class SystemAppChoice { Enabled, Disabled, Clear }
+enum class SystemAppChoice { Enabled, Disabled, Clear, HiddenOnly, SuspendedOnly }
 
 enum class SelectionFinish { Confirm, Defer }
 
