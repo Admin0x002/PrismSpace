@@ -94,6 +94,8 @@ object SystemAppPolicy {
         val result = LinkedHashMap<String, TargetState>()
         for (pkg in candidates) {
             val fact = facts[pkg]
+            val installed = fact?.installed == true
+            val choice = inputs.overrides[pkg]
             val target = when {
                 pkg in inputs.criticalSet -> TargetState.AVAILABLE                                      // R1
                 // Blocked vendor services: kept out of every space, installed here or not. A hidden +
@@ -105,7 +107,13 @@ object SystemAppPolicy {
                 fact != null && !fact.isSystem -> null                                                  // R2
                 // An explicit choice wins over the IME exemption and the default set, and carries the
                 // exact quadrant the user asked for (hide and suspend are independent switches).
-                inputs.overrides[pkg] != null -> inputs.overrides.getValue(pkg).target()                 // R3
+                // A restricted quadrant on a package absent from this space is a no-op, not a state:
+                // enabling is the only choice that can bring an absent package in (R3).
+                choice != null -> when {
+                    choice == SystemAppOverride.Enabled -> TargetState.AVAILABLE
+                    installed -> choice.target()
+                    else -> null
+                }
                 pkg in inputs.exemptSet -> null                                                         // R4
                 pkg in inputs.defaultSet -> TargetState.AVAILABLE                                       // R6
                 fact != null && fact.isSystem && fact.hasLauncherEntry && fact.installed ->            // R7
