@@ -44,5 +44,13 @@ object SystemAppBlocklist {
         "com.oppo.ctautoregist",                            // CT auto registration
         "com.qualcomm.qti.qms.service.connectionsecurity",  // Qualcomm QMS connection security
         "com.qualcomm.qti.workloadclassifier",              // Qualcomm workload classifier
+        // More vendor background services seen running inside a freshly provisioned space.
+        "com.oplus.aiunit",                                 // OPPO AI unit
+        "com.oplus.aipaint",                                // OPPO AI paint
+        "com.oplus.athena",                                 // OPPO cloud/AI glue
+        "com.coloros.weather.service",                      // weather service (no UI in the space)
+        "com.heytap.quicksearchbox",                        // quick search provider
+        "com.coloros.ocs.opencapabilityservice",             // open capability service
+        "com.oppo.instant.local.service",                   // instant app local service
     )
 }
