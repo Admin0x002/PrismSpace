@@ -1,6 +1,7 @@
 package com.yzddmr6.prismspace.provisioning
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.SystemClock
 import android.preference.PreferenceManager
 import com.yzddmr6.prismspace.analytics.DiagnosticLog
@@ -375,8 +376,12 @@ internal class SystemAppPolicyEngine(
         val entries = page.entries.map { fact ->
             BlockableAppEntry(
                 pkg = fact.pkg,
-                label = runCatching { pm.getApplicationLabel(pm.getApplicationInfo(fact.pkg, 0)).toString() }
-                    .getOrDefault(fact.pkg),
+                // Hidden and disabled-user packages are invisible to a plain lookup, which would
+                // silently degrade the label to the package name.
+                label = runCatching {
+                    val flags = PackageManager.MATCH_DISABLED_COMPONENTS or PackageManager.MATCH_UNINSTALLED_PACKAGES
+                    pm.getApplicationLabel(pm.getApplicationInfo(fact.pkg, flags)).toString()
+                }.getOrDefault(fact.pkg),
                 checked = fact.checked,
                 inBlocklist = fact.inBlocklist,
             )

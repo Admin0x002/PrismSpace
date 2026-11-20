@@ -72,8 +72,10 @@ class SystemAppPolicyTest {
                 "com.android.chrome", null),
             Case("system IME is exempt",
                 inputs(exempt = setOf("ime"), facts = listOf(fact("ime"))), "ime", null),
-            Case("system IME is exempt even when overridden",
-                inputs(exempt = setOf("ime"), overrides = mapOf("ime" to Disabled), facts = listOf(fact("ime"))), "ime", null),
+            // Fork: the disable screen must be able to turn an IME off after the user picked
+            // another keyboard, so an explicit Disable wins over the IME exemption.
+            Case("explicitly disabled IME is unavailable",
+                inputs(exempt = setOf("ime"), overrides = mapOf("ime" to Disabled), facts = listOf(fact("ime"))), "ime", UNAVAILABLE),
             Case("Disabled override on installed package",
                 inputs(overrides = mapOf("b" to Disabled), facts = listOf(fact("b"))), "b", UNAVAILABLE),
             Case("Disabled override on uninstalled package is untouched",

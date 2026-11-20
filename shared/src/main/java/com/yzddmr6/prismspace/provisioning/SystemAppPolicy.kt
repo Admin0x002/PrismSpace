@@ -72,9 +72,9 @@ object SystemAppPolicy {
                 pkg in inputs.blockedSet && inputs.overrides[pkg] != SystemAppOverride.Enabled ->
                     if (fact?.installed == true) TargetState.UNAVAILABLE else null                            // R1b
                 fact != null && !fact.isSystem -> null                                                  // R2
-                pkg in inputs.exemptSet -> null                                                         // R3
-                inputs.overrides[pkg] == SystemAppOverride.Disabled ->                                  // R4
+                inputs.overrides[pkg] == SystemAppOverride.Disabled ->                                  // R3
                     if (fact?.installed == true) TargetState.UNAVAILABLE else null
+                pkg in inputs.exemptSet -> null                                                         // R4
                 inputs.overrides[pkg] == SystemAppOverride.Enabled -> TargetState.AVAILABLE             // R5
                 pkg in inputs.defaultSet -> TargetState.AVAILABLE                                       // R6
                 fact != null && fact.isSystem && fact.hasLauncherEntry && fact.installed ->            // R7
