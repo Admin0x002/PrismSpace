@@ -53,7 +53,12 @@ android {
     }
 
     buildTypes {
-        debug {}
+        // Debug builds are what gets installed on the test tablet. Signing them with the same
+        // stable key keeps them overwrite-installable across CI runs: a fresh CI debug key would
+        // force an uninstall, and uninstalling PrismSpace orphans the work profile it owns.
+        debug {
+            if (prismReleaseSigningConfigured) signingConfig signingConfigs.release
+        }
         release {
             minifyEnabled true
             if (prismReleaseSigningConfigured) signingConfig signingConfigs.release

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       variant:
-        description: 'Gradle task to build (debug APK is installable with the Android debug key)'
+        description: 'Gradle task to build (both variants are signed with the stable fork key)'
         required: true
         default: ':assembly:assembleCompleteNormalDebug'
         type: choice
@@ -41,8 +41,30 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      # The fork's own stable key, not the runner's throwaway debug key: a changing signature
+      # forces an uninstall, and uninstalling PrismSpace orphans the work profile it owns.
+      - name: Materialize signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.PRISM_RELEASE_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/prism-release.jks"
+          test -s "$RUNNER_TEMP/prism-release.jks"
+
       - name: Build
+        env:
+          PRISM_RELEASE_KEYSTORE_PATH: ${{ runner.temp }}/prism-release.jks
+          PRISM_KEYSTORE_PASSWORD: ${{ secrets.PRISM_KEYSTORE_PASSWORD }}
+          PRISM_KEY_ALIAS: ${{ secrets.PRISM_KEY_ALIAS }}
+          PRISM_KEY_PASSWORD: ${{ secrets.PRISM_KEY_PASSWORD }}
         run: ./gradlew --no-daemon --max-workers=2 "${{ inputs.variant }}"
+
+      - name: Verify signing certificate
+        run: |
+          APK=$(find assembly/build/outputs/apk -name '*.apk' | head -n1)
+          test -n "$APK"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n1)
+          "$APKSIGNER" verify --print-certs "$APK" | head -n 5
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
