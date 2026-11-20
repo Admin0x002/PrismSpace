@@ -9,6 +9,7 @@ import com.yzddmr6.prismspace.util.Hacks
 import com.yzddmr6.prismspace.util.Modules
 import com.yzddmr6.prismspace.util.UserHandles
 import com.yzddmr6.prismspace.util.Users
+import com.yzddmr6.prismspace.prism.compose.nav.SystemAppPickerPrompt
 import com.yzddmr6.prismspace.prism.compose.vm.CapabilityRepositoryProvider
 import com.yzddmr6.prismspace.prism.compose.vm.ShizukuUtil
 import com.yzddmr6.prismspace.prism.service.ProfileEntryLauncher
@@ -150,6 +151,11 @@ object SpaceProvisioningEngine {
             return@withContext CreateSpaceResult.ConvergenceTimeout(pid)
         }
         SpaceProvisioningTracker.markReturnedSuccess()
+        // Fork change: the privileged path never reaches the setup wizard, which is the only
+        // caller of SystemAppPickerPrompt.markExpected. Mark it here so the "选择系统应用" page
+        // opens after a Shizuku/root-created space exactly like the normal ManagedProvisioning flow.
+        runCatching { SystemAppPickerPrompt.markExpected(context, pid) }
+            .onFailure { DiagnosticLog.w(TAG, "picker markExpected failed user=$pid", it) }
         DiagnosticLog.i(TAG, "privileged create success user=$pid transport=${shell.name}")
         return@withContext CreateSpaceResult.Success(pid)
     }
