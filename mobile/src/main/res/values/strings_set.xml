@@ -7,6 +7,12 @@
     <string name="lz_set_update_title">New version %1$s available</string>
     <string name="lz_set_update_download">Download</string>
     <string name="lz_set_update_later">Later</string>
+    <string name="notification_space_health_locked">Dual space is locked by system encryption</string>
+    <string name="notification_space_health_locked_body">Android kept the work profile\'s encrypted storage locked. Open PrismSpace to unlock it (root/Shizuku) or reboot the device.</string>
+    <string name="notification_space_health_paused">Dual space is paused</string>
+    <string name="notification_space_health_paused_body">Android paused the work profile. Turn on the “Work apps” tile in quick settings; the space recovers by itself.</string>
+    <string name="notification_space_health_bridge">Dual space connection is down</string>
+    <string name="notification_space_health_bridge_body">The clone apps cannot be reached from the main space. Open PrismSpace → Settings to reconnect.</string>
     <string name="lz_set_disable_apps_title">Disable space apps</string>
     <string name="lz_set_disable_apps_summary">Choose which apps stay hidden and suspended inside the dual space</string>
     <string name="lz_set_suspend_title">Pause all clones</string>

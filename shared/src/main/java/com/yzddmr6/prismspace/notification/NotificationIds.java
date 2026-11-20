@@ -42,7 +42,9 @@ public enum NotificationIds {
 	PrismAppWatcher(Channel.AppWatcher),
 	Authorization(Channel.Important),
 	Shuttle(Channel.Important),
-	Debug(Channel.Debug, 999);
+	Debug(Channel.Debug, 999),
+	/** 空间健康告警: posted by the boot self check when the space silently stopped working. */
+	SpaceHealth(Channel.SpaceHealth);
 
 	public void post(final Context context, final Notification.Builder notification) {
 		NotificationManagerCompat.from(context).notify(id(), buildChannel(context, notification).build());
@@ -105,7 +107,8 @@ public enum NotificationIds {
 		AppInstall	("AppInstall",	R.string.notification_channel_app_install,	IMPORTANCE_HIGH, 	c -> { c.setShowBadge(true); c.setSound(null, null);}),
 		Watcher		("Watcher",		R.string.notification_channel_space_watcher,		IMPORTANCE_LOW, c -> c.setShowBadge(true), c -> c.setSound(null, null)),
 		AppWatcher	("AppWatcher",	R.string.notification_channel_app_watcher,	IMPORTANCE_DEFAULT, c -> c.setShowBadge(true), c -> c.setSound(null, null)),
-		Debug		("Debug",		R.string.notification_channel_debug,		IMPORTANCE_MIN,  	channel -> channel.setShowBadge(false));
+		Debug		("Debug",		R.string.notification_channel_debug,		IMPORTANCE_MIN,  	channel -> channel.setShowBadge(false)),
+		SpaceHealth	("SpaceHealth",	R.string.notification_channel_space_health,	IMPORTANCE_DEFAULT,	c -> c.setShowBadge(true));
 
 		@SafeVarargs Channel(final String name, final @StringRes int title, final int importance, final @Nullable Consumer<NotificationChannel>... tweaks) {
 			this.name = name; this.title = title; this.importance = importance; this.tweaks = tweaks;

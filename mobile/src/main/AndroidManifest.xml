@@ -204,6 +204,14 @@
                   android:exported="false"
                   android:multiprocess="true" />
 
+        <receiver android:name="com.yzddmr6.prismspace.prism.health.SpaceHealthSelfCheck" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.MANAGED_PROFILE_ADDED" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name="com.yzddmr6.prismspace.adb.ProfileRestrictionsSync" android:directBootAware="true" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />

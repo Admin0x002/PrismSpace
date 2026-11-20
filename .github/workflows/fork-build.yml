@@ -60,7 +60,7 @@ jobs:
           PRISM_KEYSTORE_PASSWORD: ${{ secrets.PRISM_KEYSTORE_PASSWORD }}
           PRISM_KEY_ALIAS: ${{ secrets.PRISM_KEY_ALIAS }}
           PRISM_KEY_PASSWORD: ${{ secrets.PRISM_KEY_PASSWORD }}
-        run: ./gradlew --no-daemon --max-workers=2 :shared:testDebugUnitTest :mobile:testCompleteNormalDebugUnitTest
+        run: ./gradlew --no-daemon --max-workers=2 :shared:testDebugUnitTest :mobile:testDebugUnitTest
 
       - name: Build
         env:
