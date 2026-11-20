@@ -149,7 +149,6 @@ internal class SystemAppPolicyEngine(
         val stored = persistence.read()
         val collected = facts(stored.overrides.keys + SystemAppDefaults.packages + SystemAppBlocklist.packages)
         val state = ensureInitialized(stored, collected, provisionState)
-        val targets = evaluate(state, collected)
         val blockable = collected.facts.asSequence()
             .filter { it.isSystem && it.installed && it.pkg !in collected.critical }
             .map { it.pkg }
@@ -160,10 +159,14 @@ internal class SystemAppPolicyEngine(
         if (start >= blockable.size) return BlockableAppPage(emptyList(), false)
         val end = minOf(start.toInt() + size, blockable.size)
         val entries = blockable.subList(start.toInt(), end).map { pkg ->
+            // Report what the platform actually holds, not what the policy asked for: some packages
+            // refuse hide or suspend (shared UIDs, protected roles), and showing the target would
+            // claim a control that is not in effect.
+            val actual = safeState(pkg)
             BlockableAppFact(
                 pkg = pkg,
-                hidden = targets[pkg]?.hidden == true,
-                suspended = targets[pkg]?.suspended == true,
+                hidden = actual?.hidden == true,
+                suspended = actual?.suspended == true,
                 inBlocklist = pkg in SystemAppBlocklist.packages,
             )
         }

@@ -107,6 +107,7 @@ data class ApplySystemAppSelection(
 internal val SYSTEM_APP_COMMAND_SAMPLES: List<BridgeCommand<*>> = listOf(
     QuerySystemAppSelectionPage(0),
     QueryBlockableAppsPage(0),
+    QuerySpaceGovernance,
     ApplySystemAppSelection(listOf(SystemAppOverrideChange("pkg", SystemAppChoice.Enabled)), SelectionFinish.Confirm),
 )
 
@@ -114,3 +115,25 @@ private inline fun <reified T : Parcelable> Bundle.requireSystemAppResult(): T {
     @Suppress("DEPRECATION") val value: T? = getParcelable(RESULT)
     return requireNotNull(value) { "Missing ${T::class.java.simpleName} bridge result" }
 }
+
+/** 跨空间隔离策略: applied inside the profile, which is the only side allowed to set restrictions. */
+@Parcelize
+data class ApplySpaceGovernance(val policies: Map<String, Boolean>) : ProfileCommand<SpaceGovernanceReport> {
+    override val id get() = "governance.apply"
+    override fun encodeResult(result: SpaceGovernanceReport, out: Bundle) = out.putParcelable(RESULT, result)
+    override fun decodeResult(src: Bundle): SpaceGovernanceReport = src.requireSystemAppResult()
+}
+
+@Parcelize
+data class QuerySpaceGovernance : ProfileCommand<SpaceGovernanceReport> {
+    override val id get() = "governance.query"
+    override fun encodeResult(result: SpaceGovernanceReport, out: Bundle) = out.putParcelable(RESULT, result)
+    override fun decodeResult(src: Bundle): SpaceGovernanceReport = src.requireSystemAppResult()
+}
+
+/** Effective restriction state per policy name, plus the ones the platform refused to change. */
+@Parcelize
+data class SpaceGovernanceReport(
+    val effective: Map<String, Boolean>,
+    val refused: List<String>,
+) : Parcelable

@@ -65,6 +65,15 @@ import com.yzddmr6.prismspace.util.PrismLocale
 // SettingsScreen: run mode, space controls, diagnostics, update, language and about.
 // ---------------------------------------------------------------------------
 
+/** Policy name → label. Names must match CrossSpaceGovernance.Policy. */
+private val ISOLATION_SWITCHES = listOf(
+    "BlockClipboard" to R.string.lz_set_governance_clipboard,
+    "BlockUnknownInstall" to R.string.lz_set_governance_install,
+    "BlockUsbTransfer" to R.string.lz_set_governance_usb,
+    "BlockDebugging" to R.string.lz_set_governance_debug,
+    "BlockAccountAdd" to R.string.lz_set_governance_accounts,
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
@@ -73,6 +82,7 @@ fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) { vm.refreshCapabilities() }
+    LaunchedEffect(Unit) { vm.refreshGovernance(context) }
     LaunchedEffect(Unit) {
         AppLaunchSignals.activateSpace.collect { vm.repairSpace(context, activationOnly = true) }
     }
@@ -238,6 +248,33 @@ fun SettingsScreen(onOpenSpaceTrim: () -> Unit = {}) {
                     summary = langLabel,
                     leadingIcon = Icons.Outlined.Language,
                     onClick = { showLangDialog = true },
+                )
+            }
+
+            // ── 跨空间隔离 ──────────────────────────────────────────────
+            GroupCard(title = stringResource(R.string.lz_set_group_isolation)) {
+                Text(
+                    text = stringResource(R.string.lz_set_governance_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = PrismSpacing.Lg, vertical = PrismSpacing.Sm),
+                )
+                ISOLATION_SWITCHES.forEach { (name, labelRes) ->
+                    val checked = state?.governance?.get(name) == true
+                    SwitchRow(
+                        title = stringResource(labelRes),
+                        summary = null,
+                        leadingIcon = PrismIcons.Shield,
+                        checked = checked,
+                        enabled = state?.spaceUsability == com.yzddmr6.prismspace.prism.compose.space.SpaceUsability.Usable,
+                        onCheckedChange = { vm.setGovernance(context, name, it) },
+                    )
+                }
+                if (state?.governanceRefused?.isNotEmpty() == true) Text(
+                    text = stringResource(R.string.lz_set_governance_refused, state!!.governanceRefused.joinToString(", ")),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = PrismSpacing.Lg, vertical = PrismSpacing.Sm),
                 )
             }
 

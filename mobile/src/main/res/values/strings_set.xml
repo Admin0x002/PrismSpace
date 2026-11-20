@@ -77,6 +77,16 @@ Both on means invisible and unusable. This hides and suspends, it does not unins
     <string name="lz_trim_processes_count">%1$d processes, largest memory first</string>
     <string name="lz_trim_processes_rss">%1$d MB</string>
     <string name="lz_trim_processes_more">…and %1$d more</string>
+    <string name="lz_set_group_isolation">Cross-space isolation</string>
+    <string name="lz_set_governance_hint">Restrictions Android itself enforces, so they hold even while PrismSpace is not running. Turning one off lets the matching data cross between spaces.</string>
+    <string name="lz_set_governance_clipboard">Block cross-space clipboard</string>
+    <string name="lz_set_governance_install">Block unknown-source installs in the space</string>
+    <string name="lz_set_governance_usb">Block USB transfer of space data</string>
+    <string name="lz_set_governance_debug">Block debugging inside the space</string>
+    <string name="lz_set_governance_accounts">Block adding accounts in the space</string>
+    <string name="lz_set_governance_applied">Applied</string>
+    <string name="lz_set_governance_refused">The system refused: %1$s</string>
+    <string name="lz_set_governance_error">Applying failed. Check that the dual space is running.</string>
     <string name="lz_set_about_title">About PrismSpace</string>
     <string name="lz_set_about_summary">Project, version and open-source information</string>
     <string name="lz_set_cancel">Cancel</string>

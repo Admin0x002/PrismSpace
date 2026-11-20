@@ -14,6 +14,7 @@ import com.yzddmr6.prismspace.analytics.DiagnosticSection
 import com.yzddmr6.prismspace.bridge.BridgeTargets
 import com.yzddmr6.prismspace.controller.ClonePreparationStore
 import com.yzddmr6.prismspace.controller.PrismAppControl
+import com.yzddmr6.prismspace.controller.SpaceGovernanceClient
 import com.yzddmr6.prismspace.prism.compose.space.countsAsUserClone
 import com.yzddmr6.prismspace.mobile.R
 import com.yzddmr6.prismspace.prism.compose.component.PrismLevel
@@ -100,6 +101,9 @@ data class SettingsUiModel(
     val spaceActionEnabled: Boolean = true,
     // Profiles with our package that are neither provisioned nor the primary (diagnostic row only).
     val surplusProfileIds: List<Int> = emptyList(),
+    /** 跨空间隔离策略: effective state per policy name, read from the profile. */
+    val governance: Map<String, Boolean> = emptyMap(),
+    val governanceRefused: List<String> = emptyList(),
 ) {
     val spaceSuspended: Boolean get() = spaceFreezeState == SpaceFreezeState.Frozen
 }
@@ -581,6 +585,47 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
      * trigger it (the caller confirms first); without su/Shizuku there is no way to reboot and the
      * user is told so instead of silently doing nothing.
      */
+    /** Reads the effective cross-space restrictions from the profile (never from a local copy). */
+    fun refreshGovernance(context: Context) {
+        viewModelScope.launch {
+            val userId = Users.profile?.toId() ?: return@launch
+            val result = withContext(Dispatchers.IO) { SpaceGovernanceClient.read(context.applicationContext, userId) }
+            val report = (result as? ProfileBridgeResult.Value)?.value ?: return@launch
+            _uiState.value = _uiState.value?.copy(
+                governance = report.effective,
+                governanceRefused = report.refused,
+            )
+            DiagnosticLog.i(TAG, "governance read effective=${report.effective.size}")
+        }
+    }
+
+    /** Applies one policy toggle and re-reads the effective state. */
+    fun setGovernance(context: Context, policy: String, enabled: Boolean) {
+        viewModelScope.launch {
+            val userId = Users.profile?.toId() ?: return@launch
+            val current = _uiState.value?.governance.orEmpty()
+            val result = withContext(Dispatchers.IO) {
+                SpaceGovernanceClient.apply(context.applicationContext, userId, current + (policy to enabled))
+            }
+            when (result) {
+                is ProfileBridgeResult.Value -> {
+                    val report = result.value
+                    _uiState.value = _uiState.value?.copy(
+                        governance = report?.effective.orEmpty(),
+                        governanceRefused = report?.refused.orEmpty(),
+                    )
+                    val refused = report?.refused.orEmpty()
+                    setFeedback(
+                        if (refused.isEmpty()) str(R.string.lz_set_governance_applied)
+                        else str(R.string.lz_set_governance_refused, refused.joinToString(", ")),
+                        isError = refused.isNotEmpty(),
+                    )
+                }
+                else -> setFeedback(str(R.string.lz_set_governance_error), isError = true)
+            }
+        }
+    }
+
     fun rebootForUnlock(context: Context) {
         viewModelScope.launch {
             setFeedback(str(R.string.lz_setvm_rebooting), isError = false)

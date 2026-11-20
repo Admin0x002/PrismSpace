@@ -77,6 +77,16 @@
     <string name="lz_trim_processes_count">共 %1$d 个进程，按占用内存排序</string>
     <string name="lz_trim_processes_rss">%1$d MB</string>
     <string name="lz_trim_processes_more">…另有 %1$d 个进程</string>
+    <string name="lz_set_group_isolation">跨空间隔离</string>
+    <string name="lz_set_governance_hint">由 Android 系统强制执行的限制，设置后即使 PrismSpace 没在运行也生效。关闭会导致对应数据可以跨空间流动。</string>
+    <string name="lz_set_governance_clipboard">禁止跨空间剪贴板</string>
+    <string name="lz_set_governance_install">禁止空间内安装未知来源</string>
+    <string name="lz_set_governance_usb">禁止 USB 传输空间数据</string>
+    <string name="lz_set_governance_debug">禁止空间内调试</string>
+    <string name="lz_set_governance_accounts">禁止空间内添加账户</string>
+    <string name="lz_set_governance_applied">已应用</string>
+    <string name="lz_set_governance_refused">系统拒绝了：%1$s</string>
+    <string name="lz_set_governance_error">应用失败，请确认双开空间正在运行</string>
     <string name="lz_set_about_title">关于 PrismSpace</string>
     <string name="lz_set_about_summary">项目介绍、版本与开源信息</string>
     <string name="lz_set_cancel">取消</string>

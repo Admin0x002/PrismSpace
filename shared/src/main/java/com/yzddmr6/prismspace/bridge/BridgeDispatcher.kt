@@ -85,6 +85,14 @@ internal object BridgeDispatcher {
                 command,
                 SystemAppPolicyRuntime.querySelectionPage(context, command.pageIndex, command.pageSize),
             )
+            is ApplySpaceGovernance -> success(
+                command,
+                com.yzddmr6.prismspace.prism.compose.space.CrossSpaceGovernance.applyAll(context, command.policies),
+            )
+            QuerySpaceGovernance -> success(
+                QuerySpaceGovernance,
+                com.yzddmr6.prismspace.prism.compose.space.CrossSpaceGovernance.report(context, emptyList()),
+            )
             is QueryBlockableAppsPage -> success(
                 command,
                 SystemAppPolicyRuntime.queryBlockableAppsPage(context, command.pageIndex, command.pageSize),
